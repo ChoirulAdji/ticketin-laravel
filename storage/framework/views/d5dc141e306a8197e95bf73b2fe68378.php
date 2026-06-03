@@ -1,7 +1,6 @@
-@extends('layouts.app')
-@section('title', 'Tentang Kami — TicketIn')
+<?php $__env->startSection('title', 'Tentang Kami — TicketIn'); ?>
 
-@push('styles')
+<?php $__env->startPush('styles'); ?>
   <style>
     .card-hover {
       transition: all .3s ease;
@@ -32,9 +31,9 @@
       box-shadow: 0 12px 30px rgba(0, 24, 64, .1);
     }
   </style>
-@endpush
+<?php $__env->stopPush(); ?>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
 
   <!-- Hero -->
   <section class="pt-[90px] py-14 bg-gradient-to-br from-navy-deep to-navy-mid text-white">
@@ -51,13 +50,13 @@
     <div class="fade-in visible">
       <h2 class="text-2xl font-extrabold text-navy-deep mb-7">Kenapa Pilih TicketIn?</h2>
       <div class="grid md:grid-cols-4 gap-6">
-        @foreach ([['🎯', 'Mudah Digunakan', 'Antarmuka sederhana dan jelas. Pengguna bisa mencari dan memesan tiket hanya dalam beberapa langkah tanpa proses yang rumit.'], ['📋', 'Informasi Lengkap', 'Setiap event dilengkapi detail penting seperti jadwal, lokasi, harga, dan kategori sehingga pengguna bisa mengambil keputusan dengan cepat.'], ['🔒', 'Pembayaran Aman', 'Mendukung berbagai metode pembayaran seperti transfer bank, e-wallet, dan QRIS dengan sistem yang terjamin keamanannya.'], ['🏢', 'Untuk Pengelola', 'Pengelola event dapat mendaftarkan diri dan mengelola tiket secara mandiri melalui dashboard yang intuitif dan lengkap.']] as [$icon, $title, $desc])
+        <?php $__currentLoopData = [['🎯', 'Mudah Digunakan', 'Antarmuka sederhana dan jelas. Pengguna bisa mencari dan memesan tiket hanya dalam beberapa langkah tanpa proses yang rumit.'], ['📋', 'Informasi Lengkap', 'Setiap event dilengkapi detail penting seperti jadwal, lokasi, harga, dan kategori sehingga pengguna bisa mengambil keputusan dengan cepat.'], ['🔒', 'Pembayaran Aman', 'Mendukung berbagai metode pembayaran seperti transfer bank, e-wallet, dan QRIS dengan sistem yang terjamin keamanannya.'], ['🏢', 'Untuk Pengelola', 'Pengelola event dapat mendaftarkan diri dan mengelola tiket secara mandiri melalui dashboard yang intuitif dan lengkap.']]; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as [$icon, $title, $desc]): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
           <div class="bg-white p-6 rounded-xl shadow card-hover">
-            <div class="text-3xl mb-3">{{ $icon }}</div>
-            <h3 class="font-bold text-navy-deep mb-2">{{ $title }}</h3>
-            <p class="text-gray-500 text-sm">{{ $desc }}</p>
+            <div class="text-3xl mb-3"><?php echo e($icon); ?></div>
+            <h3 class="font-bold text-navy-deep mb-2"><?php echo e($title); ?></h3>
+            <p class="text-gray-500 text-sm"><?php echo e($desc); ?></p>
           </div>
-        @endforeach
+        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
       </div>
     </div>
 
@@ -73,11 +72,12 @@
         <div class="text-4xl mb-4">🚀</div>
         <h2 class="text-xl font-bold text-navy-deep mb-3">Misi Kami</h2>
         <ul class="space-y-3">
-          @foreach (['Menyederhanakan proses pembelian tiket dengan teknologi modern', 'Membantu penyelenggara event menjangkau audiens yang lebih luas', 'Memberikan pengalaman terbaik dari penemuan hingga pintu masuk event', 'Mendukung ekosistem hiburan dan industri kreatif Indonesia'] as $m)
+          <?php $__currentLoopData = ['Menyederhanakan proses pembelian tiket dengan teknologi modern', 'Membantu penyelenggara event menjangkau audiens yang lebih luas', 'Memberikan pengalaman terbaik dari penemuan hingga pintu masuk event', 'Mendukung ekosistem hiburan dan industri kreatif Indonesia']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $m): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
             <li class="flex items-start gap-3 text-gray-500 text-sm">
-              <span class="text-gold mt-0.5 flex-shrink-0 font-bold">✓</span>{{ $m }}
+              <span class="text-gold mt-0.5 flex-shrink-0 font-bold">✓</span><?php echo e($m); ?>
+
             </li>
-          @endforeach
+          <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
         </ul>
       </div>
     </div>
@@ -86,12 +86,12 @@
     <div class="fade-in visible">
       <div class="bg-navy-deep rounded-2xl p-10">
         <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-          @foreach ([['500+', 'Event Digelar'], ['50K+', 'Tiket Terjual'], ['30K+', 'Pengguna Aktif'], ['20+', 'Kota di Indonesia']] as [$num, $label])
+          <?php $__currentLoopData = [['500+', 'Event Digelar'], ['50K+', 'Tiket Terjual'], ['30K+', 'Pengguna Aktif'], ['20+', 'Kota di Indonesia']]; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as [$num, $label]): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
             <div>
-              <p class="text-3xl font-extrabold text-gold">{{ $num }}</p>
-              <p class="text-white/60 text-sm mt-1">{{ $label }}</p>
+              <p class="text-3xl font-extrabold text-gold"><?php echo e($num); ?></p>
+              <p class="text-white/60 text-sm mt-1"><?php echo e($label); ?></p>
             </div>
-          @endforeach
+          <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
         </div>
       </div>
     </div>
@@ -100,14 +100,14 @@
     <div class="fade-in visible">
       <h2 class="text-2xl font-extrabold text-navy-deep mb-7 text-center">Tim <span class="text-gold">TicketIn</span></h2>
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
-        @foreach ([['Iqbal Maulana Difangga'], ['M. Rasya Zikri Subagio'], ['Choirul Wahyu Adji']] as [$nama])
+        <?php $__currentLoopData = [['Iqbal Maulana Difangga'], ['M. Rasya Zikri Subagio'], ['Choirul Wahyu Adji']]; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as [$nama]): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
           <div class="team-card bg-white rounded-2xl shadow-sm border border-gray-100 p-6 text-center">
             <div
               class="w-16 h-16 rounded-2xl bg-navy-mid flex items-center justify-center mx-auto mb-4 text-gold font-extrabold text-xl">
               </div>
-            <h3 class="font-bold text-navy-deep">{{ $nama }}</h3>
+            <h3 class="font-bold text-navy-deep"><?php echo e($nama); ?></h3>
           </div>
-        @endforeach
+        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
       </div>
     </div>
 
@@ -116,25 +116,27 @@
       <h2 class="text-2xl font-extrabold text-navy-deep mb-3">Siap Mulai?</h2>
       <p class="text-gray-500 mb-6">Bergabung dengan ribuan pengguna yang sudah menikmati kemudahan TicketIn.</p>
       <div class="flex gap-3 justify-center flex-wrap">
-        <a href="{{ route('events.index') }}"
+        <a href="<?php echo e(route('events.index')); ?>"
           class="bg-gold text-navy-deep font-bold px-6 py-3 rounded-xl hover:bg-gold-light transition-all text-sm shadow-sm">🎟️
           Temukan Event</a>
-        @guest
-          <a href="{{ route('register') }}"
+        <?php if(auth()->guard()->guest()): ?>
+          <a href="<?php echo e(route('register')); ?>"
             class="bg-navy-mid text-white font-bold px-6 py-3 rounded-xl hover:bg-navy-deep transition-all text-sm">Daftar
             Gratis →</a>
-        @endguest
+        <?php endif; ?>
       </div>
     </div>
 
   </section>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@push('scripts')
+<?php $__env->startPush('scripts'); ?>
   <script>
     const obs = new IntersectionObserver(entries => entries.forEach(e => {
       if (e.isIntersecting) e.target.classList.add('visible');
     }));
     document.querySelectorAll('.fade-in').forEach(el => obs.observe(el));
   </script>
-@endpush
+<?php $__env->stopPush(); ?>
+
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH D:\Application\Software\XAMPP\htdocs\ticketin-laravel\resources\views/pages/tentang.blade.php ENDPATH**/ ?>
