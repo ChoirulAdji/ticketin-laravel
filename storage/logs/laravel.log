@@ -1,0 +1,10 @@
+[2026-06-03 20:52:20] local.WARNING: Gagal kirim email konfirmasi ke pembeli: Failed to authenticate on SMTP server with username "emailkamu@gmail.com" using the following authenticators: "LOGIN", "PLAIN", "XOAUTH2". Authenticator "LOGIN" returned "Expected response code "235" but got code "534", with message "534-5.7.9 Please log in with your web browser and then try again. For more
+534-5.7.9 information, go to
+534 5.7.9  https://support.google.com/mail/?p=WebLoginRequired d9443c01a7336-2c164f6dc92sm25147045ad.13 - gsmtp".". Authenticator "PLAIN" returned "Expected response code "235" but got code "534", with message "534-5.7.9 Please log in with your web browser and then try again. For more
+534-5.7.9 information, go to
+534 5.7.9  https://support.google.com/mail/?p=WebLoginRequired d9443c01a7336-2c164f6dc92sm25147045ad.13 - gsmtp".". Authenticator "XOAUTH2" returned "Expected response code "235" but got code "334", with message "334 eyJzdGF0dXMiOiI0MDAiLCJzY2hlbWVzIjoiQmVhcmVyIiwic2NvcGUiOiJodHRwczovL21haWwuZ29vZ2xlLmNvbS8ifQ==".".  
+[2026-06-03 20:52:24] local.WARNING: Gagal kirim email notif ke EO: Failed to authenticate on SMTP server with username "emailkamu@gmail.com" using the following authenticators: "LOGIN", "PLAIN", "XOAUTH2". Authenticator "LOGIN" returned "Expected response code "235" but got code "534", with message "534-5.7.9 Please log in with your web browser and then try again. For more
+534-5.7.9 information, go to
+534 5.7.9  https://support.google.com/mail/?p=WebLoginRequired d9443c01a7336-2c16649bde7sm27487775ad.72 - gsmtp".". Authenticator "PLAIN" returned "Expected response code "235" but got code "534", with message "534-5.7.9 Please log in with your web browser and then try again. For more
+534-5.7.9 information, go to
+534 5.7.9  https://support.google.com/mail/?p=WebLoginRequired d9443c01a7336-2c16649bde7sm27487775ad.72 - gsmtp".". Authenticator "XOAUTH2" returned "Expected response code "235" but got code "334", with message "334 eyJzdGF0dXMiOiI0MDAiLCJzY2hlbWVzIjoiQmVhcmVyIiwic2NvcGUiOiJodHRwczovL21haWwuZ29vZ2xlLmNvbS8ifQ==".".  
