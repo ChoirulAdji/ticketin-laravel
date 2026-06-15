@@ -85,7 +85,7 @@
               @if(auth()->user()->isAdmin())
               <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-2 px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors">
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-                👑 Admin Panel
+                 Admin Panel
               </a>
               @elseif(auth()->user()->isPengelola())
               <a href="{{ route('pengelola.dashboard') }}" class="flex items-center gap-2 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-navy-mid transition-colors">
@@ -95,12 +95,12 @@
               @elseif(!auth()->user()->eoApplication)
               <a href="{{ route('eo.daftar') }}" class="flex items-center gap-2 px-4 py-3 text-sm text-gold hover:bg-yellow-50 transition-colors font-semibold">
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
-                🎭 Daftar Jadi EO
+                 Daftar Jadi EO
               </a>
               @else
               <a href="{{ route('eo.status') }}" class="flex items-center gap-2 px-4 py-3 text-sm text-yellow-600 hover:bg-yellow-50 transition-colors">
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                ⏳ Status Pengajuan EO
+                 Status Pengajuan EO
               </a>
               @endif
               <div class="border-t border-gray-100"></div>
@@ -164,7 +164,7 @@
               background: {{ session('success') ? '#f0fdf4' : '#fef2f2' }};
               border: 1.5px solid {{ session('success') ? '#86efac' : '#fca5a5' }};
               color: {{ session('success') ? '#15803d' : '#dc2626' }};">
-    <span class="text-xl flex-shrink-0">{{ session('success') ? '✅' : '❌' }}</span>
+    <span class="text-xl flex-shrink-0">{{ session('success') ? '' : '' }}</span>
     <span class="flex-1">{{ session('success') ?? session('error') }}</span>
     <button onclick="tutupToast()" class="ml-2 opacity-50 hover:opacity-100 transition-opacity flex-shrink-0">
       <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -363,7 +363,7 @@
         t.className = 'fixed bottom-6 left-1/2 -translate-x-1/2 z-[70] px-5 py-2.5 rounded-full text-sm font-semibold shadow-xl transition-all duration-300 opacity-0 pointer-events-none';
         document.body.appendChild(t);
       }
-      t.textContent = added ? '❤️ Ditambahkan ke Favorit' : '🤍 Dihapus dari Favorit';
+      t.textContent = added ? ' Ditambahkan ke Favorit' : ' Dihapus dari Favorit';
       t.style.background = added ? '#102A71' : '#6b7280';
       t.style.color = '#fff';
       t.style.opacity = '1';

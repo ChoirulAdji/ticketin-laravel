@@ -23,14 +23,15 @@
     19 => 'Illuminate\\Translation\\TranslationServiceProvider',
     20 => 'Illuminate\\Validation\\ValidationServiceProvider',
     21 => 'Illuminate\\View\\ViewServiceProvider',
-    22 => 'Laravel\\Breeze\\BreezeServiceProvider',
-    23 => 'Laravel\\Sail\\SailServiceProvider',
-    24 => 'Laravel\\Tinker\\TinkerServiceProvider',
-    25 => 'Carbon\\Laravel\\ServiceProvider',
-    26 => 'NunoMaduro\\Collision\\Adapters\\Laravel\\CollisionServiceProvider',
-    27 => 'Termwind\\Laravel\\TermwindServiceProvider',
-    28 => 'App\\Providers\\AppServiceProvider',
+    22 => 'Barryvdh\\LaravelIdeHelper\\IdeHelperServiceProvider',
+    23 => 'Laravel\\Breeze\\BreezeServiceProvider',
+    24 => 'Laravel\\Sail\\SailServiceProvider',
+    25 => 'Laravel\\Tinker\\TinkerServiceProvider',
+    26 => 'Carbon\\Laravel\\ServiceProvider',
+    27 => 'NunoMaduro\\Collision\\Adapters\\Laravel\\CollisionServiceProvider',
+    28 => 'Termwind\\Laravel\\TermwindServiceProvider',
     29 => 'App\\Providers\\AppServiceProvider',
+    30 => 'App\\Providers\\AppServiceProvider',
   ),
   'eager' => 
   array (
@@ -200,6 +201,10 @@
     'validator' => 'Illuminate\\Validation\\ValidationServiceProvider',
     'validation.presence' => 'Illuminate\\Validation\\ValidationServiceProvider',
     'Illuminate\\Contracts\\Validation\\UncompromisedVerifier' => 'Illuminate\\Validation\\ValidationServiceProvider',
+    'Barryvdh\\LaravelIdeHelper\\Console\\GeneratorCommand' => 'Barryvdh\\LaravelIdeHelper\\IdeHelperServiceProvider',
+    'Barryvdh\\LaravelIdeHelper\\Console\\ModelsCommand' => 'Barryvdh\\LaravelIdeHelper\\IdeHelperServiceProvider',
+    'Barryvdh\\LaravelIdeHelper\\Console\\MetaCommand' => 'Barryvdh\\LaravelIdeHelper\\IdeHelperServiceProvider',
+    'Barryvdh\\LaravelIdeHelper\\Console\\EloquentCommand' => 'Barryvdh\\LaravelIdeHelper\\IdeHelperServiceProvider',
     'Laravel\\Breeze\\Console\\InstallCommand' => 'Laravel\\Breeze\\BreezeServiceProvider',
     'Laravel\\Sail\\Console\\InstallCommand' => 'Laravel\\Sail\\SailServiceProvider',
     'Laravel\\Sail\\Console\\PublishCommand' => 'Laravel\\Sail\\SailServiceProvider',
@@ -241,6 +246,9 @@
     array (
     ),
     'Illuminate\\Validation\\ValidationServiceProvider' => 
+    array (
+    ),
+    'Barryvdh\\LaravelIdeHelper\\IdeHelperServiceProvider' => 
     array (
     ),
     'Laravel\\Breeze\\BreezeServiceProvider' => 

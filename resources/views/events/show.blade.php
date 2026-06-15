@@ -21,6 +21,13 @@
 @endpush
 
 @section('content')
+@if(auth()->check() && auth()->user()->role === 'admin' && $event->status !== 'published')
+<div class="bg-amber-500 text-white text-sm font-semibold text-center py-2.5 px-4 flex items-center justify-center gap-2">
+  <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+  MODE PREVIEW ADMIN — Status: <strong class="ml-1 uppercase">{{ $event->status }}</strong>
+  <a href="{{ route('admin.events') }}" class="ml-4 text-xs underline hover:no-underline">← Kembali ke panel admin</a>
+</div>
+@endif
 <div class="pt-24 max-w-7xl mx-auto px-6 py-10 pb-28 lg:pb-10">
   <div class="flex flex-col lg:flex-row gap-10 items-start">
 
@@ -36,7 +43,7 @@
           <span class="font-semibold text-navy-mid">{{ $event->pengelola->nama_lengkap ?? 'TicketIn EO' }}</span>
           @if($event->jumlah_review > 0)
           <span class="inline-flex items-center gap-1 bg-gold/10 text-yellow-700 text-xs font-bold px-2 py-0.5 rounded-full ml-1">
-            ★ {{ $event->rating_rata_rata }} <span class="font-normal text-yellow-600">({{ $event->jumlah_review }})</span>
+             {{ $event->rating_rata_rata }} <span class="font-normal text-yellow-600">({{ $event->jumlah_review }})</span>
           </span>
           @endif
           <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-blue-500" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
@@ -49,7 +56,6 @@
              onerror="this.src='https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=1200&q=80'"
              alt="{{ $event->judul }}" class="w-full h-full object-cover md:object-contain group-hover:scale-105 transition-transform duration-700"/>
         <div class="absolute top-4 left-4 z-10">
-          <span class="bg-gold text-navy-deep text-xs font-bold px-3 py-1.5 rounded-full shadow-md">🔥 Populer</span>
         </div>
         <div class="absolute top-4 right-4 flex gap-2 z-10">
           @auth
@@ -189,7 +195,7 @@
             <p class="text-5xl font-extrabold text-navy-deep">{{ $rataRata }}</p>
             <div class="flex gap-0.5 my-1.5">
               @for($i=1;$i<=5;$i++)
-                <span class="text-xl {{ $i <= round($rataRata) ? 'text-gold' : 'text-gray-200' }}">★</span>
+                <span class="text-xl {{ $i <= round($rataRata) ? 'text-gold' : 'text-gray-200' }}"></span>
               @endfor
             </div>
             <p class="text-xs text-gray-500">{{ $totalReview }} ulasan</p>
@@ -199,7 +205,7 @@
               @php $count = $dist[$star]; $pct = $totalReview ? round($count/$totalReview*100) : 0; @endphp
               <div class="flex items-center gap-2 text-xs">
                 <span class="w-2 text-gray-500 font-medium text-right">{{ $star }}</span>
-                <span class="text-gold text-sm">★</span>
+                <span class="text-gold text-sm"></span>
                 <div class="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
                   <div class="h-full bg-gold rounded-full transition-all duration-500" style="width:{{ $pct }}%"></div>
                 </div>
@@ -215,10 +221,10 @@
           @if($userReview)
             <div class="bg-green-50 border border-green-200 rounded-xl px-5 py-4 mb-6 flex items-start justify-between gap-4">
               <div>
-                <p class="text-sm font-semibold text-green-700 mb-0.5">Ulasan kamu sudah terkirim ✅</p>
+                <p class="text-sm font-semibold text-green-700 mb-0.5">Ulasan kamu sudah terkirim </p>
                 <div class="flex gap-0.5 mb-1">
                   @for($i=1;$i<=5;$i++)
-                    <span class="{{ $i <= $userReview->rating ? 'text-gold' : 'text-gray-300' }}">★</span>
+                    <span class="{{ $i <= $userReview->rating ? 'text-gold' : 'text-gray-300' }}"></span>
                   @endfor
                 </div>
                 @if($userReview->ulasan)
@@ -238,7 +244,7 @@
                 {{-- Star Rating --}}
                 <div class="flex gap-1 mb-4" id="star-picker">
                   @for($i=1;$i<=5;$i++)
-                    <button type="button" class="star-btn" data-val="{{ $i }}" onclick="setRating({{ $i }})">★</button>
+                    <button type="button" class="star-btn" data-val="{{ $i }}" onclick="setRating({{ $i }})"></button>
                   @endfor
                 </div>
                 <input type="hidden" name="rating" id="rating-input" value="">
@@ -287,7 +293,7 @@
                   </div>
                   <div class="flex gap-0.5 my-1">
                     @for($i=1;$i<=5;$i++)
-                      <span class="text-sm {{ $i <= $review->rating ? 'text-gold' : 'text-gray-200' }}">★</span>
+                      <span class="text-sm {{ $i <= $review->rating ? 'text-gold' : 'text-gray-200' }}"></span>
                     @endfor
                   </div>
                   @if($review->ulasan)

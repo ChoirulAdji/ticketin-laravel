@@ -51,7 +51,7 @@
         <img src="{{ auth()->user()->avatar_url }}" class="w-9 h-9 rounded-full object-cover">
         <div class="min-w-0">
           <p class="font-bold text-navy-deep text-sm truncate">{{ auth()->user()->nama_panggilan }}</p>
-          <p class="text-red-500 text-xs font-semibold">👑 Super Admin</p>
+          <p class="text-red-500 text-xs font-semibold"> Super Admin</p>
         </div>
       </div>
     </div>
@@ -75,9 +75,19 @@
         Manajemen Event
       </a>
 
-      <a href="{{ route('admin.pesanan') }}" class="sidebar-link {{ request()->routeIs('admin.pesanan') ? 'active' : '' }}">
-        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-        Semua Pesanan
+
+      <p class="sidebar-section">Website</p>
+      <a href="{{ route('admin.hero-slider') }}"
+         class="sidebar-link {{ request()->routeIs('admin.hero-slider*') ? 'active' : '' }}">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+        Hero Slider
+      </a>
+
+      <p class="sidebar-section">Laporan</p>
+      <a href="{{ route('admin.laporan') }}"
+         class="sidebar-link {{ request()->routeIs('admin.laporan*') ? 'active' : '' }}">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+        Laporan Penjualan
       </a>
 
       <p class="sidebar-section">Verifikasi</p>
@@ -113,10 +123,10 @@
       <h2 class="font-bold text-navy-deep text-sm">@yield('title','Dashboard Admin')</h2>
       <div class="flex items-center gap-3 text-xs text-gray-400">
         @if(session('success'))
-          <span class="text-green-600 bg-green-50 border border-green-200 px-3 py-1.5 rounded-lg">✅ {{ session('success') }}</span>
+          <span class="text-green-600 bg-green-50 border border-green-200 px-3 py-1.5 rounded-lg"> {{ session('success') }}</span>
         @endif
         @if(session('error'))
-          <span class="text-red-600 bg-red-50 border border-red-200 px-3 py-1.5 rounded-lg">❌ {{ session('error') }}</span>
+          <span class="text-red-600 bg-red-50 border border-red-200 px-3 py-1.5 rounded-lg"> {{ session('error') }}</span>
         @endif
         {{ now()->format('d M Y') }}
       </div>

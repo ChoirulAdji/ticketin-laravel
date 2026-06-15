@@ -66,7 +66,7 @@
         <div class="flex">
           <div class="flex items-center px-3 text-white/60 text-sm font-semibold flex-shrink-0"
                style="background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.12);border-right:none;border-radius:12px 0 0 12px;">
-            🇮🇩 +62
+             +62
           </div>
           <input type="tel" name="no_hp" value="{{ old('no_hp') }}"
                  placeholder="812 3456 7890"
@@ -108,14 +108,14 @@
       </div>
 
       <button type="submit" class="btn-login w-full rounded-xl py-3.5 text-sm tracking-wide mt-2">
-        🎟️ Buat Akun Sekarang
+         Buat Akun Sekarang
       </button>
     </form>
 
     {{-- Info jadi EO --}}
     <div class="mt-5 p-4 rounded-xl text-center" style="background:rgba(245,196,0,.08);border:1px solid rgba(245,196,0,.2);">
       <p class="text-white/60 text-xs">Ingin jadi Pengelola Event (EO)?</p>
-      <p class="text-gold text-xs font-semibold mt-0.5">Daftar dulu, lalu ajukan verifikasi EO dari profil kamu 🎭</p>
+      <p class="text-gold text-xs font-semibold mt-0.5">Daftar dulu, lalu ajukan verifikasi EO dari profil kamu </p>
     </div>
 
     <p class="text-center text-white/50 text-sm mt-5">

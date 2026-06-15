@@ -41,13 +41,13 @@
 <div class="wrapper">
   <div class="card">
     <div class="header">
-      <div class="logo-text">🎟️ TicketIn</div>
-      <h1>🎉 Ada Pembeli Baru!</h1>
+      <div class="logo-text"> TicketIn</div>
+      <h1> Ada Pembeli Baru!</h1>
       <p>Notifikasi untuk pengelola event</p>
     </div>
     <div class="body">
       <div class="alert-box">
-        <div class="icon">🔔</div>
+        <div class="icon"></div>
         <div>
           <h2>Pesanan baru masuk untuk eventmu!</h2>
           <p>{{ $order->user->nama_lengkap }} baru saja memesan tiket <strong>{{ $order->event->judul }}</strong>.</p>
@@ -65,7 +65,7 @@
           <div class="lbl">Total</div>
         </div>
         <div class="stat">
-          <div class="num" style="color:#d97706;">⏳</div>
+          <div class="num" style="color:#d97706;"></div>
           <div class="lbl">{{ ucfirst($order->status) }}</div>
         </div>
       </div>

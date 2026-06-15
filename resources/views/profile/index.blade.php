@@ -14,7 +14,7 @@
   .eticket-wrap .ticket-body::before { content:''; position:absolute; top:50%; left:-10px; width:20px; height:20px; background:#f3f4f6; border-radius:50%; transform:translateY(-50%); z-index:2; }
   .eticket-wrap .ticket-body::after  { content:''; position:absolute; top:50%; right:-10px; width:20px; height:20px; background:#f3f4f6; border-radius:50%; transform:translateY(-50%); z-index:2; }
   .ticket-dashed { border-top:2px dashed rgba(255,255,255,.2); margin:14px 0; }
-  .qr-pattern { background:repeating-conic-gradient(white 0% 25%,#102A71 0% 50%) 0 0 / 7px 7px; border-radius:8px; }
+  .qr-canvas canvas { border-radius:8px; width:96px!important; height:96px!important; }
   .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:100; display:flex; align-items:center; justify-content:center; padding:20px; opacity:0; pointer-events:none; transition:opacity .3s; }
   .modal-overlay.show { opacity:1; pointer-events:all; }
   .modal-box { background:white; border-radius:24px; width:100%; max-width:420px; max-height:90vh; overflow-y:auto; transform:scale(.95); transition:transform .3s; }
@@ -44,7 +44,7 @@
         @if($user->no_hp)<p class="text-gray-400 text-sm">+62{{ $user->no_hp }}</p>@endif
         <div class="flex items-center justify-center sm:justify-start gap-2 mt-3">
           <span class="text-xs font-bold px-3 py-1 rounded-full {{ $user->role==='pengelola' ? 'bg-gold/20 text-yellow-700 border border-gold/40' : ($user->role==='admin' ? 'bg-red-100 text-red-700 border border-red-300' : 'bg-navy-mid/10 text-navy-mid border border-navy-mid/20') }}">
-            {{ $user->role==='pengelola' ? '🎭 Pengelola Event' : ($user->role==='admin' ? '👑 Admin' : '🎟️ Pembeli') }}
+            {{ $user->role==='pengelola' ? ' Pengelola Event' : ($user->role==='admin' ? ' Admin' : ' Pembeli') }}
           </span>
           <span class="text-gray-400 text-xs">Bergabung {{ $user->created_at->format('M Y') }}</span>
         </div>
@@ -73,7 +73,7 @@
     <div class="grid grid-cols-1 mt-4 pt-4 border-t border-gray-100">
       <div class="text-center">
         <p class="text-2xl font-extrabold text-red-400">{{ $wishlists->count() }}</p>
-        <p class="text-gray-400 text-xs mt-0.5">❤️ Event Favorit</p>
+        <p class="text-gray-400 text-xs mt-0.5"> Event Favorit</p>
       </div>
     </div>
   </div>
@@ -81,9 +81,9 @@
   {{-- TABS --}}
   <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
     <div class="flex border-b border-gray-100 px-6 gap-2 overflow-x-auto">
-      <button class="tab-btn active" onclick="switchTab('tiket')">🎟️ Tiket Saya</button>
-      <button class="tab-btn" onclick="switchTab('riwayat')">📋 Riwayat Pesanan</button>
-      <button class="tab-btn" onclick="switchTab('favorit')">❤️ Favorit</button>
+      <button class="tab-btn active" onclick="switchTab('tiket')"> Tiket Saya</button>
+      <button class="tab-btn" onclick="switchTab('riwayat')"> Riwayat Pesanan</button>
+      <button class="tab-btn" onclick="switchTab('favorit')"> Favorit</button>
     </div>
 
     {{-- TAB TIKET SAYA --}}
@@ -91,7 +91,7 @@
       @php $paidOrders = $orders->where('status','paid'); @endphp
       @if($paidOrders->isEmpty())
       <div class="py-16 text-center">
-        <div class="text-6xl mb-4">🎟️</div>
+        <div class="text-6xl mb-4"></div>
         <h3 class="text-lg font-bold text-navy-deep mb-2">Belum Ada Tiket Aktif</h3>
         <p class="text-gray-500 text-sm mb-5">Tiket yang sudah dibayar akan muncul di sini.</p>
         <a href="{{ route('events.index') }}" class="inline-block bg-gold text-navy-deep font-bold px-6 py-3 rounded-xl text-sm hover:bg-gold-light transition-all">Cari Event Sekarang</a>
@@ -111,19 +111,19 @@
               </div>
               <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
                 <div class="bg-white/5 rounded-xl p-3">
-                  <p class="text-white/40 text-xs mb-1">📅 Tanggal</p>
+                  <p class="text-white/40 text-xs mb-1"> Tanggal</p>
                   <p class="text-white font-bold text-xs">{{ $order->event->tanggal_waktu->format('d M Y') }}</p>
                 </div>
                 <div class="bg-white/5 rounded-xl p-3">
-                  <p class="text-white/40 text-xs mb-1">🕐 Waktu</p>
+                  <p class="text-white/40 text-xs mb-1"> Waktu</p>
                   <p class="text-white font-bold text-xs">{{ $order->event->tanggal_waktu->format('H:i') }} WIB</p>
                 </div>
                 <div class="bg-white/5 rounded-xl p-3">
-                  <p class="text-white/40 text-xs mb-1">📍 Lokasi</p>
+                  <p class="text-white/40 text-xs mb-1"> Lokasi</p>
                   <p class="text-white font-bold text-xs truncate">{{ $order->event->lokasi_kota }}</p>
                 </div>
                 <div class="bg-white/5 rounded-xl p-3">
-                  <p class="text-white/40 text-xs mb-1">🎫 Jumlah</p>
+                  <p class="text-white/40 text-xs mb-1"> Jumlah</p>
                   <p class="text-white font-bold text-xs">{{ $order->total_qty }} Tiket</p>
                 </div>
               </div>
@@ -143,7 +143,7 @@
                 <p class="text-white/30 text-xs mt-3">Venue: {{ $order->event->venue }}</p>
               </div>
               <div class="flex flex-col items-center gap-2 flex-shrink-0">
-                <div class="qr-pattern w-24 h-24 shadow-inner border-2 border-white/10"></div>
+                <div class="qr-canvas" id="qr-{{ $order->order_code }}"></div>
                 <p class="text-white/40 text-xs text-center">Scan di pintu<br>masuk event</p>
               </div>
             </div>
@@ -189,7 +189,7 @@
     <div class="tab-panel p-6" id="tab-riwayat">
       @if($orders->isEmpty())
       <div class="py-16 text-center">
-        <div class="text-5xl mb-4">🎭</div>
+        <div class="text-5xl mb-4"></div>
         <p class="text-gray-500 mb-4">Belum ada pesanan.</p>
         <a href="{{ route('events.index') }}" class="inline-block bg-gold text-navy-deep font-bold px-6 py-3 rounded-xl text-sm">Jelajahi Event</a>
       </div>
@@ -210,7 +210,7 @@
             </div>
             <div class="flex sm:flex-col items-center sm:items-end gap-3 flex-shrink-0 w-full sm:w-auto">
               <span class="text-xs font-semibold px-3 py-1 rounded-full {{ $order->status==='paid' ? 'badge-paid' : ($order->status==='pending' ? 'badge-pending' : 'badge-cancelled') }}">
-                {{ $order->status==='paid' ? '✅ Lunas' : ($order->status==='pending' ? '⏳ Menunggu Bayar' : '❌ Dibatalkan') }}
+                {{ $order->status==='paid' ? ' Lunas' : ($order->status==='pending' ? ' Menunggu Bayar' : ' Dibatalkan') }}
               </span>
               <p class="font-bold text-navy-deep text-sm">Rp {{ number_format($order->total_harga,0,',','.') }}</p>
             </div>
@@ -277,9 +277,9 @@
     <div class="tab-panel p-6" id="tab-favorit">
       @if($wishlists->isEmpty())
         <div class="py-16 text-center">
-          <div class="text-6xl mb-4">❤️</div>
+          <div class="text-6xl mb-4"></div>
           <h3 class="text-lg font-bold text-navy-deep mb-2">Belum Ada Event Favorit</h3>
-          <p class="text-gray-500 text-sm mb-5">Tap ikon ❤️ di card event untuk menyimpan ke sini.</p>
+          <p class="text-gray-500 text-sm mb-5">Tap ikon  di card event untuk menyimpan ke sini.</p>
           <a href="{{ route('events.index') }}" class="inline-block bg-gold text-navy-deep font-bold px-6 py-3 rounded-xl text-sm hover:bg-gold-light transition-all">Jelajahi Event</a>
         </div>
       @else
@@ -353,10 +353,10 @@
             <span style="background:rgba(34,197,94,.2);color:#4ade80;border:1px solid rgba(34,197,94,.3);font-size:10px;font-weight:800;padding:4px 10px;border-radius:20px;flex-shrink:0;">VALID</span>
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
-            <div style="background:rgba(255,255,255,.07);border-radius:10px;padding:10px;"><p style="color:rgba(255,255,255,.4);font-size:10px;margin-bottom:3px;">📅 Tanggal</p><p id="m-tanggal" style="font-weight:700;font-size:12px;"></p></div>
-            <div style="background:rgba(255,255,255,.07);border-radius:10px;padding:10px;"><p style="color:rgba(255,255,255,.4);font-size:10px;margin-bottom:3px;">🕐 Waktu</p><p id="m-waktu" style="font-weight:700;font-size:12px;"></p></div>
-            <div style="background:rgba(255,255,255,.07);border-radius:10px;padding:10px;"><p style="color:rgba(255,255,255,.4);font-size:10px;margin-bottom:3px;">📍 Lokasi</p><p id="m-lokasi" style="font-weight:700;font-size:12px;"></p></div>
-            <div style="background:rgba(255,255,255,.07);border-radius:10px;padding:10px;"><p style="color:rgba(255,255,255,.4);font-size:10px;margin-bottom:3px;">🎫 Jumlah</p><p id="m-qty" style="font-weight:700;font-size:12px;"></p></div>
+            <div style="background:rgba(255,255,255,.07);border-radius:10px;padding:10px;"><p style="color:rgba(255,255,255,.4);font-size:10px;margin-bottom:3px;"> Tanggal</p><p id="m-tanggal" style="font-weight:700;font-size:12px;"></p></div>
+            <div style="background:rgba(255,255,255,.07);border-radius:10px;padding:10px;"><p style="color:rgba(255,255,255,.4);font-size:10px;margin-bottom:3px;"> Waktu</p><p id="m-waktu" style="font-weight:700;font-size:12px;"></p></div>
+            <div style="background:rgba(255,255,255,.07);border-radius:10px;padding:10px;"><p style="color:rgba(255,255,255,.4);font-size:10px;margin-bottom:3px;"> Lokasi</p><p id="m-lokasi" style="font-weight:700;font-size:12px;"></p></div>
+            <div style="background:rgba(255,255,255,.07);border-radius:10px;padding:10px;"><p style="color:rgba(255,255,255,.4);font-size:10px;margin-bottom:3px;"> Jumlah</p><p id="m-qty" style="font-weight:700;font-size:12px;"></p></div>
           </div>
           <div id="m-summary-wrap" style="margin-bottom:12px;"></div>
         </div>
@@ -370,7 +370,7 @@
             <p style="color:rgba(255,255,255,.3);font-size:10px;margin-top:8px;">Venue: <span id="m-venue"></span></p>
             <p id="m-total" style="color:rgba(255,255,255,.5);font-size:11px;margin-top:4px;"></p>
           </div>
-          <div style="background:repeating-conic-gradient(white 0% 25%,#102A71 0% 50%) 0 0 / 7px 7px;width:80px;height:80px;border-radius:8px;flex-shrink:0;"></div>
+          <div id="modal-qr-box" style="width:80px;height:80px;flex-shrink:0;border-radius:8px;overflow:hidden;"></div>
         </div>
       </div>
       <div class="mt-4 bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-700 flex gap-2 items-start">
@@ -415,6 +415,23 @@
 @endsection
 
 @push('scripts')
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Generate QR code untuk setiap tiket
+  document.querySelectorAll('[id^="qr-"]').forEach(function(el) {
+    const code = el.id.replace('qr-', '');
+    new QRCode(el, {
+      text: code,
+      width: 96,
+      height: 96,
+      colorDark: '#102A71',
+      colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.M
+    });
+  });
+});
+</script>
 <script>
   function switchTab(name) {
     const names = ['tiket','riwayat'];
@@ -439,6 +456,23 @@
       '<span style="background:rgba(245,196,0,.2);color:#F5C400;border:1px solid rgba(245,196,0,.3);font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;display:inline-block;margin:2px;">'+s.trim()+'</span>'
     ).join('');
     document.getElementById('share-btn').onclick = () => bagikanTiket(d.kode, d.judul);
+    // Generate QR code berdasarkan kode tiket
+    const kode = btn.dataset.kode || btn.closest('[data-kode]')?.dataset.kode || document.getElementById('m-kode')?.textContent || '';
+    if (kode) {
+      setTimeout(() => {
+        const mqrEl = document.getElementById('modal-qr-box');
+        if (mqrEl && !mqrEl.querySelector('canvas')) {
+          new QRCode(mqrEl, {
+            text: kode,
+            width: 80,
+            height: 80,
+            colorDark: '#102A71',
+            colorLight: '#ffffff',
+            correctLevel: QRCode.CorrectLevel.M
+          });
+        }
+      }, 100);
+    }
     document.getElementById('tiket-modal').classList.add('show');
   }
 

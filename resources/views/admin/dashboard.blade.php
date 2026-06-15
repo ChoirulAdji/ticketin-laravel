@@ -2,6 +2,7 @@
 @section('title','Dashboard Admin')
 
 @push('styles')
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
   .stat-card { background:white; border:1px solid #e5e7eb; border-radius:16px; padding:20px; transition:all .2s; }
   .stat-card:hover { box-shadow:0 8px 24px rgba(0,24,64,.08); transform:translateY(-2px); }
@@ -37,14 +38,13 @@
   {{-- Stats --}}
   <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
     @foreach([
-      ['👤','Total User',$stats['total_user'],'text-navy-deep','bg-navy-mid/10',route('admin.users')],
-      ['🎭','Total EO',$stats['total_eo'],'text-purple-700','bg-purple-50',route('admin.users').'?role=pengelola'],
-      ['📅','Total Event',$stats['total_event'],'text-blue-700','bg-blue-50',route('admin.events')],
-      ['🎟️','Total Pesanan',$stats['total_pesanan'],'text-green-700','bg-green-50',route('admin.pesanan')],
-    ] as [$icon,$label,$val,$color,$bg,$link])
+      ['Total User',$stats['total_user'],'text-navy-deep','bg-navy-mid/10',route('admin.users')],
+      ['Total EO',$stats['total_eo'],'text-purple-700','bg-purple-50',route('admin.users').'?role=pengelola'],
+      ['Total Event',$stats['total_event'],'text-blue-700','bg-blue-50',route('admin.events')],
+      ['Total Pesanan',$stats['total_pesanan'],'text-green-700','bg-green-50',route('admin.pesanan')],
+    ] as [$label,$val,$color,$bg,$link])
     <a href="{{ $link }}" class="stat-card block">
       <div class="flex items-center justify-between mb-3">
-        <div class="w-10 h-10 {{ $bg }} rounded-xl flex items-center justify-center text-xl">{{ $icon }}</div>
       </div>
       <p class="text-3xl font-extrabold {{ $color }}">{{ number_format($val) }}</p>
       <p class="text-gray-400 text-xs mt-1">{{ $label }}</p>
@@ -54,17 +54,14 @@
 
   <div class="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
     <div class="stat-card">
-      <div class="w-10 h-10 bg-gold/10 rounded-xl flex items-center justify-center text-xl mb-3">💰</div>
       <p class="text-2xl font-extrabold text-navy-deep">Rp {{ number_format($stats['total_pendapatan']/1000000,1) }}jt</p>
       <p class="text-gray-400 text-xs mt-1">Total Pendapatan Platform</p>
     </div>
     <a href="{{ route('admin.pengajuan-eo') }}" class="stat-card block">
-      <div class="w-10 h-10 bg-yellow-50 rounded-xl flex items-center justify-center text-xl mb-3">⏳</div>
       <p class="text-3xl font-extrabold text-yellow-600">{{ $stats['pending_eo'] }}</p>
       <p class="text-gray-400 text-xs mt-1">Pengajuan EO Pending</p>
     </a>
     <a href="{{ route('admin.events') }}" class="stat-card block">
-      <div class="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-xl mb-3">📝</div>
       <p class="text-3xl font-extrabold text-blue-600">{{ $stats['pending_event'] }}</p>
       <p class="text-gray-400 text-xs mt-1">Event Draft</p>
     </a>
@@ -74,7 +71,7 @@
 
     {{-- Grafik Pendapatan --}}
     <div class="lg:col-span-2 bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
-      <h2 class="font-bold text-navy-deep mb-6">📊 Pendapatan Platform (6 Bulan)</h2>
+      <h2 class="font-bold text-navy-deep mb-6">Pendapatan Platform (6 Bulan)</h2>
       @if($grafikPendapatan->isEmpty())
         <div class="flex items-center justify-center h-40 text-gray-400 text-sm">Belum ada data</div>
       @else
@@ -99,7 +96,7 @@
     {{-- Pengajuan EO Terbaru --}}
     <div class="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
       <div class="flex items-center justify-between mb-5">
-        <h2 class="font-bold text-navy-deep">🔔 Pengajuan EO</h2>
+        <h2 class="font-bold text-navy-deep">Pengajuan EO</h2>
         <a href="{{ route('admin.pengajuan-eo') }}" class="text-xs text-navy-mid font-semibold hover:text-gold">Lihat Semua</a>
       </div>
       @if($pengajuanPending->isEmpty())
@@ -120,13 +117,79 @@
         </div>
       @endif
     </div>
+
+  </div>
+
+  {{-- Pie Charts — full width row below bar chart --}}
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+
+    {{-- Pie 1: Metode Pembayaran --}}
+    <div class="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
+      <h3 class="font-bold text-navy-deep text-sm mb-5">Metode Pembayaran</h3>
+      @if($pieMetode->isEmpty())
+        <p class="text-center text-gray-400 text-xs py-8">Belum ada data</p>
+      @else
+        <div class="flex justify-center mb-4">
+          <canvas id="chartMetode" width="180" height="180"></canvas>
+        </div>
+        <div class="space-y-2 border-t border-gray-100 pt-3">
+          @foreach($pieMetode as $metode => $total)
+          <div class="flex items-center justify-between text-sm">
+            <span class="text-gray-600 uppercase font-medium">{{ $metode }}</span>
+            <span class="font-bold text-navy-mid">{{ $total }} transaksi</span>
+          </div>
+          @endforeach
+        </div>
+      @endif
+    </div>
+
+    {{-- Pie 2: Status Pesanan --}}
+    <div class="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
+      <h3 class="font-bold text-navy-deep text-sm mb-5">Status Pesanan</h3>
+      @if($pieStatus->isEmpty())
+        <p class="text-center text-gray-400 text-xs py-8">Belum ada data</p>
+      @else
+        <div class="flex justify-center mb-4">
+          <canvas id="chartStatus" width="180" height="180"></canvas>
+        </div>
+        <div class="space-y-2 border-t border-gray-100 pt-3">
+          @foreach($pieStatus as $status => $total)
+          <div class="flex items-center justify-between text-sm">
+            <span class="text-gray-600 capitalize font-medium">{{ $status }}</span>
+            <span class="font-bold text-navy-mid">{{ $total }} pesanan</span>
+          </div>
+          @endforeach
+        </div>
+      @endif
+    </div>
+
+    {{-- Pie 3: Kategori Event --}}
+    <div class="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
+      <h3 class="font-bold text-navy-deep text-sm mb-5">Kategori Event</h3>
+      @if($pieKategori->isEmpty())
+        <p class="text-center text-gray-400 text-xs py-8">Belum ada data</p>
+      @else
+        <div class="flex justify-center mb-4">
+          <canvas id="chartKategori" width="180" height="180"></canvas>
+        </div>
+        <div class="space-y-2 border-t border-gray-100 pt-3">
+          @foreach($pieKategori as $kat => $total)
+          <div class="flex items-center justify-between text-sm">
+            <span class="text-gray-600 font-medium">{{ $kat }}</span>
+            <span class="font-bold text-navy-mid">{{ $total }} event</span>
+          </div>
+          @endforeach
+        </div>
+      @endif
+    </div>
+
   </div>
 
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
 
     {{-- EO Terbaik --}}
     <div class="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
-      <h2 class="font-bold text-navy-deep mb-5">🏆 EO Terbaik</h2>
+      <h2 class="font-bold text-navy-deep mb-5">EO Terbaik</h2>
       @if($eoBest->isEmpty())
         <div class="text-center py-8 text-gray-400 text-sm">Belum ada data</div>
       @else
@@ -135,7 +198,7 @@
           @foreach($eoBest as $i => $eo)
           <div class="flex items-center gap-3">
             <span class="w-6 h-6 flex items-center justify-center text-sm font-extrabold {{ $i===0?'text-gold':($i===1?'text-gray-400':($i===2?'text-amber-600':'text-gray-300')) }}">
-              {{ $i===0?'🥇':($i===1?'🥈':($i===2?'🥉':$i+1)) }}
+              {{ $i===0?'1':($i===1?'2':($i===2?'3':$i+1)) }}
             </span>
             <img src="{{ $eo->avatar_url }}" class="w-8 h-8 rounded-full object-cover flex-shrink-0">
             <div class="flex-1 min-w-0">
@@ -156,7 +219,7 @@
 
     {{-- Event Terpopuler --}}
     <div class="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
-      <h2 class="font-bold text-navy-deep mb-5">🔥 Event Terpopuler</h2>
+      <h2 class="font-bold text-navy-deep mb-5">Event Terpopuler</h2>
       @if($eventPopuler->isEmpty())
         <div class="text-center py-8 text-gray-400 text-sm">Belum ada data</div>
       @else
@@ -182,7 +245,7 @@
   {{-- Pesanan Terbaru --}}
   <div class="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
     <div class="flex items-center justify-between mb-5">
-      <h2 class="font-bold text-navy-deep">📋 Pesanan Terbaru</h2>
+      <h2 class="font-bold text-navy-deep">Pesanan Terbaru</h2>
       <a href="{{ route('admin.pesanan') }}" class="text-xs text-navy-mid font-semibold hover:text-gold">Lihat Semua →</a>
     </div>
     <div class="overflow-x-auto">
@@ -210,7 +273,7 @@
             <td class="py-3 pr-4"><p class="text-xs text-gray-400">{{ $order->created_at->diffForHumans() }}</p></td>
             <td class="py-3">
               <span class="text-xs font-semibold px-2 py-0.5 rounded-full {{ $order->status==='paid'?'badge-paid':($order->status==='pending'?'badge-pending':'badge-cancelled') }}">
-                {{ $order->status==='paid'?'✅ Lunas':($order->status==='pending'?'⏳ Pending':'❌ Batal') }}
+                {{ $order->status==='paid'?'Lunas':($order->status==='pending'?'Pending':'Batal') }}
               </span>
             </td>
           </tr>
@@ -221,4 +284,62 @@
   </div>
 
 </div>
+
+@push('scripts')
+<script>
+const COLORS = ['#102A71','#F5C400','#3B82F6','#10B981','#EF4444','#8B5CF6','#F59E0B','#06B6D4','#EC4899'];
+
+function makePie(id, labels, data) {
+  const ctx = document.getElementById(id);
+  if (!ctx) return;
+  new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: labels,
+      datasets: [{
+        data: data,
+        backgroundColor: COLORS.slice(0, data.length),
+        borderWidth: 2,
+        borderColor: '#ffffff',
+        hoverOffset: 6,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => ` ${ctx.label}: ${ctx.raw} (${Math.round(ctx.raw/ctx.dataset.data.reduce((a,b)=>a+b,0)*100)}%)`
+          }
+        }
+      },
+      cutout: '60%',
+    }
+  });
+}
+
+@if(!$pieMetode->isEmpty())
+makePie('chartMetode',
+  {!! json_encode($pieMetode->keys()->map(fn($k) => strtoupper($k))->values()) !!},
+  {!! json_encode($pieMetode->values()) !!}
+);
+@endif
+
+@if(!$pieStatus->isEmpty())
+makePie('chartStatus',
+  {!! json_encode($pieStatus->keys()->map(fn($k) => ucfirst($k))->values()) !!},
+  {!! json_encode($pieStatus->values()) !!}
+);
+@endif
+
+@if(!$pieKategori->isEmpty())
+makePie('chartKategori',
+  {!! json_encode($pieKategori->keys()->values()) !!},
+  {!! json_encode($pieKategori->values()) !!}
+);
+@endif
+</script>
+@endpush
+
 @endsection

@@ -11,6 +11,8 @@ use App\Http\Controllers\PengelolaController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\WishlistController;
+use App\Http\Controllers\LaporanController;
+use App\Http\Controllers\HeroSliderController;
 use Illuminate\Support\Facades\Route;
 
 // ── Public ────────────────────────────────────────────────────────
@@ -91,6 +93,10 @@ Route::middleware(['auth', \App\Http\Middleware\PengelolaMiddleware::class])
         Route::get('/event/{event}/edit', [PengelolaController::class, 'edit'])->name('event.edit');
         Route::put('/event/{event}', [PengelolaController::class, 'update'])->name('event.update');
         Route::delete('/event/{event}', [PengelolaController::class, 'destroy'])->name('event.destroy');
+        // Laporan EO
+        Route::get('/laporan', [LaporanController::class, 'eoIndex'])->name('laporan');
+        Route::get('/laporan/export', [LaporanController::class, 'eoExport'])->name('laporan.export');
+
         Route::get('/event/{event}/pesanan', [PengelolaController::class, 'pesanan'])->name('event.pesanan');
         Route::put('/pesanan/{order}/status', [PengelolaController::class, 'updateStatusPesanan'])->name('pesanan.status');
     });
@@ -110,6 +116,21 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])
         Route::get('/events', [AdminController::class, 'events'])->name('events');
         Route::post('/events/{event}/approve', [AdminController::class, 'approveEvent'])->name('events.approve');
         Route::post('/events/{event}/reject', [AdminController::class, 'rejectEvent'])->name('events.reject');
+        // Alias agar konsisten dengan blade view
+        // Hero Slider
+        Route::get('/hero-slider', [HeroSliderController::class, 'index'])->name('hero-slider');
+        Route::post('/hero-slider', [HeroSliderController::class, 'store'])->name('hero-slider.store');
+        Route::post('/hero-slider/{slider}/toggle', [HeroSliderController::class, 'toggleAktif'])->name('hero-slider.toggle');
+        Route::post('/hero-slider/urutan', [HeroSliderController::class, 'updateUrutan'])->name('hero-slider.urutan');
+        Route::delete('/hero-slider/{slider}', [HeroSliderController::class, 'destroy'])->name('hero-slider.destroy');
+
+        // Laporan
+        Route::get('/laporan', [LaporanController::class, 'adminIndex'])->name('laporan');
+        Route::get('/laporan/export', [LaporanController::class, 'adminExport'])->name('laporan.export');
+
+        Route::post('/events/{event}/approve-alias', [AdminController::class, 'approveEvent'])->name('admin.events.approve');
+        Route::post('/events/{event}/reject-alias', [AdminController::class, 'rejectEvent'])->name('admin.events.reject');
+        Route::delete('/events/{event}/hapus', [AdminController::class, 'hapusEvent'])->name('admin.events.hapus');
         Route::delete('/events/{event}', [AdminController::class, 'hapusEvent'])->name('events.hapus');
 
         // Verifikasi EO

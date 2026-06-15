@@ -20,9 +20,9 @@
     <form method="GET">
       <select name="status" onchange="this.form.submit()" class="border border-gray-200 rounded-xl px-4 py-2 text-sm outline-none bg-white">
         <option value="">Semua Status</option>
-        <option value="pending"   {{ request('status')==='pending'?'selected':'' }}>⏳ Pending</option>
-        <option value="paid"      {{ request('status')==='paid'?'selected':'' }}>✅ Lunas</option>
-        <option value="cancelled" {{ request('status')==='cancelled'?'selected':'' }}>❌ Dibatalkan</option>
+        <option value="pending"   {{ request('status')==='pending'?'selected':'' }}> Pending</option>
+        <option value="paid"      {{ request('status')==='paid'?'selected':'' }}> Lunas</option>
+        <option value="cancelled" {{ request('status')==='cancelled'?'selected':'' }}> Dibatalkan</option>
       </select>
     </form>
   </div>
@@ -31,10 +31,10 @@
   <div class="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
     @foreach([
       ['Total',$stats['total'],'text-navy-deep','bg-white'],
-      ['✅ Lunas',$stats['paid'],'text-green-700','bg-green-50'],
-      ['⏳ Pending',$stats['pending'],'text-yellow-700','bg-yellow-50'],
-      ['❌ Dibatalkan',$stats['cancelled'],'text-red-700','bg-red-50'],
-      ['💰 Pendapatan','Rp '.number_format($stats['pendapatan']/1000000,1).'jt','text-navy-mid','bg-navy-mid/5'],
+      [' Lunas',$stats['paid'],'text-green-700','bg-green-50'],
+      [' Pending',$stats['pending'],'text-yellow-700','bg-yellow-50'],
+      [' Dibatalkan',$stats['cancelled'],'text-red-700','bg-red-50'],
+      [' Pendapatan','Rp '.number_format($stats['pendapatan']/1000000,1).'jt','text-navy-mid','bg-navy-mid/5'],
     ] as [$l,$v,$c,$bg])
     <div class="{{ $bg }} border border-gray-100 rounded-2xl p-4 shadow-sm text-center">
       <p class="text-xl font-extrabold {{ $c }}">{{ $v }}</p>
@@ -46,7 +46,7 @@
   <div class="bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden">
     @if($orders->isEmpty())
       <div class="py-20 text-center text-gray-400">
-        <div class="text-4xl mb-3">📭</div><p>Tidak ada pesanan</p>
+        <div class="text-4xl mb-3"></div><p>Tidak ada pesanan</p>
       </div>
     @else
       <div class="overflow-x-auto">
@@ -92,7 +92,7 @@
               <td class="px-4 py-4">
                 <span class="text-xs font-semibold px-2 py-1 rounded-full
                   {{ $order->status==='paid'?'badge-paid':($order->status==='pending'?'badge-pending':'badge-cancelled') }}">
-                  {{ $order->status==='paid'?'✅ Lunas':($order->status==='pending'?'⏳ Pending':'❌ Batal') }}
+                  {{ $order->status==='paid'?' Lunas':($order->status==='pending'?' Pending':' Batal') }}
                 </span>
               </td>
               <td class="px-4 py-4">

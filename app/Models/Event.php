@@ -19,6 +19,9 @@ class Event extends Model
         'deskripsi',
         'gambar_cover',
         'status',
+        'approved_by',
+        'approved_at',
+        'catatan_admin',
     ];
 
     protected $casts = [

@@ -111,14 +111,18 @@ class CheckoutController extends Controller
                 }
             }
 
-            $biayaLayanan = $subtotal * 0.05;
-            $total        = $subtotal + $biayaLayanan;
+            $biayaLayanan  = round($subtotal * 0.05);
+            $total         = $subtotal + $biayaLayanan;
+            $pendapatanEo  = $subtotal; // EO dapat subtotal (harga tiket)
 
             $order = Order::create([
                 'order_code'     => Order::generateCode(),
                 'user_id'        => Auth::id(),
                 'event_id'       => $event->id,
                 'total_harga'    => $total,
+                'subtotal'       => $subtotal,
+                'biaya_layanan'  => $biayaLayanan,
+                'pendapatan_eo'  => $pendapatanEo,
                 'total_qty'      => $totalQty,
                 'status'         => 'pending',
                 'metode_bayar'   => $request->metode_bayar,

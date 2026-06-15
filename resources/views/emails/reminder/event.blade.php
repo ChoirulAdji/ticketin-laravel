@@ -24,7 +24,7 @@
     .info-item .il { font-size:11px; color:#92400e; font-weight:700; text-transform:uppercase; letter-spacing:.04em; }
     .info-item .iv { font-size:13px; color:#111827; font-weight:600; margin-top:2px; }
     .ticket-box { background:linear-gradient(135deg,#102A71,#001840); border-radius:12px; padding:20px; color:white; margin-bottom:24px; position:relative; overflow:hidden; }
-    .ticket-box::before { content:'🎟️'; position:absolute; right:-10px; top:50%; transform:translateY(-50%); font-size:80px; opacity:.1; }
+    .ticket-box::before { content:''; position:absolute; right:-10px; top:50%; transform:translateY(-50%); font-size:80px; opacity:.1; }
     .ticket-box .tk-label { font-size:11px; color:rgba(255,255,255,.5); text-transform:uppercase; letter-spacing:.05em; }
     .ticket-box .tk-code { font-size:20px; font-weight:800; color:#F5C400; font-family:monospace; letter-spacing:2px; margin-top:4px; }
     .ticket-box .tk-summary { font-size:13px; color:rgba(255,255,255,.7); margin-top:8px; }
@@ -47,7 +47,7 @@
 <div class="wrapper">
   <div class="card">
     <div class="header">
-      <div class="logo-text">🎟️ TicketIn</div>
+      <div class="logo-text"> TicketIn</div>
       <h1>⏰ Besok Eventnya!</h1>
       <p>Jangan sampai ketinggalan, sudah siap?</p>
     </div>
@@ -59,7 +59,7 @@
 
     <div class="body">
       <p style="font-size:15px;color:#374151;margin-bottom:20px;">
-        Halo <strong>{{ $order->user->nama_panggilan }}</strong>! 🎉<br>
+        Halo <strong>{{ $order->user->nama_panggilan }}</strong>! <br>
         Ini pengingat bahwa event yang kamu tunggu-tunggu <strong>tinggal 1 hari lagi</strong>!
       </p>
 
@@ -70,22 +70,22 @@
 
       <div class="info-grid">
         <div class="info-item">
-          <div class="icon">📅</div>
+          <div class="icon"></div>
           <div class="il">Tanggal</div>
           <div class="iv">{{ $order->event->tanggal_waktu->translatedFormat('d F Y') }}</div>
         </div>
         <div class="info-item">
-          <div class="icon">🕐</div>
+          <div class="icon"></div>
           <div class="il">Jam Mulai</div>
           <div class="iv">{{ $order->event->tanggal_waktu->format('H:i') }} WIB</div>
         </div>
         <div class="info-item">
-          <div class="icon">📍</div>
+          <div class="icon"></div>
           <div class="il">Kota</div>
           <div class="iv">{{ $order->event->lokasi_kota }}</div>
         </div>
         <div class="info-item">
-          <div class="icon">🏟️</div>
+          <div class="icon">️</div>
           <div class="il">Venue</div>
           <div class="iv">{{ $order->event->venue }}</div>
         </div>
@@ -101,17 +101,17 @@
       {{-- Checklist persiapan --}}
       <div class="checklist">
         <h3>Checklist Persiapan</h3>
-        <div class="check-item"><div class="check-icon">✅</div> Simpan kode tiket kamu</div>
-        <div class="check-item"><div class="check-icon">✅</div> Cek lokasi venue di Google Maps</div>
-        <div class="check-item"><div class="check-icon">✅</div> Datang 30 menit sebelum acara</div>
-        <div class="check-item"><div class="check-icon">✅</div> Bawa identitas diri (KTP/SIM)</div>
-        <div class="check-item"><div class="check-icon">✅</div> Charge HP kamu penuh</div>
+        <div class="check-item"><div class="check-icon"></div> Simpan kode tiket kamu</div>
+        <div class="check-item"><div class="check-icon"></div> Cek lokasi venue di Google Maps</div>
+        <div class="check-item"><div class="check-icon"></div> Datang 30 menit sebelum acara</div>
+        <div class="check-item"><div class="check-icon"></div> Bawa identitas diri (KTP/SIM)</div>
+        <div class="check-item"><div class="check-icon"></div> Charge HP kamu penuh</div>
       </div>
 
       <a href="{{ url('/profile') }}" class="cta">Lihat E-Ticket Saya →</a>
 
       <p style="font-size:12px;color:#9ca3af;text-align:center;">
-        Selamat menikmati event! Jangan lupa kasih ulasan setelah selesai ya 😊
+        Selamat menikmati event! Jangan lupa kasih ulasan setelah selesai ya 
       </p>
     </div>
     <div class="footer">

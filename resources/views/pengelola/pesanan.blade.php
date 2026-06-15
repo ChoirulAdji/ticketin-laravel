@@ -15,12 +15,12 @@
   </div>
 
   @if(session('success'))
-    <div class="bg-green-50 border border-green-300 text-green-700 px-4 py-3 rounded-xl text-sm mb-6">✅ {{ session('success') }}</div>
+    <div class="bg-green-50 border border-green-300 text-green-700 px-4 py-3 rounded-xl text-sm mb-6"> {{ session('success') }}</div>
   @endif
 
   <!-- Stats -->
   <div class="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
-    @foreach([['Total Pesanan',$stats['total'],'text-navy-deep'],['✅ Lunas',$stats['paid'],'text-green-600'],['⏳ Pending',$stats['pending'],'text-yellow-600'],['❌ Dibatalkan',$stats['cancelled'],'text-red-600'],['💰 Pendapatan','Rp '.number_format($stats['pendapatan'],0,',','.'),'text-yellow-600']] as [$l,$v,$c])
+    @foreach([['Total Pesanan',$stats['total'],'text-navy-deep'],[' Lunas',$stats['paid'],'text-green-600'],[' Pending',$stats['pending'],'text-yellow-600'],[' Dibatalkan',$stats['cancelled'],'text-red-600'],[' Pendapatan','Rp '.number_format($stats['pendapatan'],0,',','.'),'text-yellow-600']] as [$l,$v,$c])
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 text-center {{ $loop->last ? 'col-span-2 lg:col-span-1' : '' }}">
       <p class="text-lg font-extrabold {{ $c }}">{{ $v }}</p>
       <p class="text-gray-400 text-xs mt-1">{{ $l }}</p>
@@ -30,9 +30,9 @@
 
   <!-- Table -->
   <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-    <h2 class="font-bold text-navy-deep text-lg mb-5">📋 Daftar Pesanan</h2>
+    <h2 class="font-bold text-navy-deep text-lg mb-5"> Daftar Pesanan</h2>
     @if($orders->isEmpty())
-      <div class="py-16 text-center"><div class="text-5xl mb-3">📭</div><p class="text-gray-500">Belum ada pesanan untuk event ini.</p></div>
+      <div class="py-16 text-center"><div class="text-5xl mb-3"></div><p class="text-gray-500">Belum ada pesanan untuk event ini.</p></div>
     @else
       <div class="space-y-3">
         @foreach($orders as $order)
@@ -56,7 +56,7 @@
           <div class="flex items-center gap-2 flex-shrink-0">
             <span class="text-xs font-semibold px-3 py-1 rounded-full
               {{ $order->status==='paid' ? 'bg-green-100 text-green-700' : ($order->status==='pending' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700') }}">
-              {{ $order->status==='paid' ? '✅ Lunas' : ($order->status==='pending' ? '⏳ Pending' : '❌ Batal') }}
+              {{ $order->status==='paid' ? ' Lunas' : ($order->status==='pending' ? ' Pending' : ' Batal') }}
             </span>
             <form method="POST" action="{{ route('pengelola.pesanan.status',$order) }}">
               @csrf @method('PUT')

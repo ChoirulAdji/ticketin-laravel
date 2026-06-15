@@ -60,12 +60,12 @@
           <td class="px-4 py-4">
             <span class="text-xs font-semibold px-2 py-1 rounded-full
               {{ $user->role==='admin'?'bg-red-100 text-red-700':($user->role==='pengelola'?'bg-purple-100 text-purple-700':'bg-blue-100 text-blue-700') }}">
-              {{ $user->role==='admin'?'👑 Admin':($user->role==='pengelola'?'🎭 EO':'🎟️ Pembeli') }}
+              {{ $user->role==='admin'?' Admin':($user->role==='pengelola'?' EO':' Pembeli') }}
             </span>
           </td>
           <td class="px-4 py-4">
             <span class="text-xs font-semibold px-2 py-1 rounded-full {{ $user->status_akun==='active'?'badge-active':'badge-suspended' }}">
-              {{ $user->status_akun==='active'?'✅ Aktif':'🚫 Suspend' }}
+              {{ $user->status_akun==='active'?' Aktif':' Suspend' }}
             </span>
           </td>
           <td class="px-4 py-4">
@@ -114,7 +114,7 @@
     <form method="POST" id="role-form">
       @csrf
       <div class="space-y-2 mb-5">
-        @foreach(['user'=>['🎟️ Pembeli','Bisa beli tiket event'],'pengelola'=>['🎭 Pengelola EO','Bisa buat dan kelola event'],'admin'=>['👑 Admin','Akses penuh ke seluruh platform']] as $role=>[$label,$desc])
+        @foreach(['user'=>[' Pembeli','Bisa beli tiket event'],'pengelola'=>[' Pengelola EO','Bisa buat dan kelola event'],'admin'=>[' Admin','Akses penuh ke seluruh platform']] as $role=>[$label,$desc])
         <label class="flex items-center gap-3 p-3 border-2 border-gray-100 rounded-xl cursor-pointer hover:border-navy-mid/30 transition-all has-[:checked]:border-navy-mid has-[:checked]:bg-navy-mid/5">
           <input type="radio" name="role" value="{{ $role }}" class="accent-navy-mid">
           <div>

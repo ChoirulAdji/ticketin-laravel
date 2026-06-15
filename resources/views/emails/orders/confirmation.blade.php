@@ -46,12 +46,12 @@
 <div class="wrapper">
   <div class="card">
     <div class="header">
-      <div class="logo-text">🎟️ TicketIn</div>
+      <div class="logo-text"> TicketIn</div>
       <h1>Pesanan Berhasil Dibuat!</h1>
       <p>Terima kasih telah memesan tiket di TicketIn</p>
     </div>
     <div class="body">
-      <p class="greeting">Halo, <strong>{{ $order->user->nama_panggilan }}</strong>! 👋</p>
+      <p class="greeting">Halo, <strong>{{ $order->user->nama_panggilan }}</strong>! </p>
       <p style="font-size:14px;color:#6b7280;margin-bottom:20px;">
         Pesananmu sudah berhasil kami terima. Selesaikan pembayaran sebelum batas waktu agar tiket kamu dikonfirmasi.
       </p>
@@ -63,7 +63,7 @@
         <div style="display:flex;justify-content:space-between;gap:16px;margin-top:8px;">
           <div>
             <div class="label">Status</div>
-            <div class="value" style="color:#d97706;">⏳ Menunggu Pembayaran</div>
+            <div class="value" style="color:#d97706;"> Menunggu Pembayaran</div>
           </div>
           <div>
             <div class="label">Metode Bayar</div>
@@ -79,22 +79,22 @@
       <div class="section-title">Detail Event</div>
       <div class="info-grid">
         <div class="info-item">
-          <div class="icon">📅</div>
+          <div class="icon"></div>
           <div class="il">Tanggal</div>
           <div class="iv">{{ $order->event->tanggal_waktu->translatedFormat('d F Y') }}</div>
         </div>
         <div class="info-item">
-          <div class="icon">🕐</div>
+          <div class="icon"></div>
           <div class="il">Jam</div>
           <div class="iv">{{ $order->event->tanggal_waktu->format('H:i') }} WIB</div>
         </div>
         <div class="info-item">
-          <div class="icon">📍</div>
+          <div class="icon"></div>
           <div class="il">Lokasi</div>
           <div class="iv">{{ $order->event->lokasi_kota }}</div>
         </div>
         <div class="info-item">
-          <div class="icon">🏟️</div>
+          <div class="icon">️</div>
           <div class="il">Venue</div>
           <div class="iv">{{ $order->event->venue }}</div>
         </div>

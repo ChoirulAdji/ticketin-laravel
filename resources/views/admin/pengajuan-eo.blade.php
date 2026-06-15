@@ -24,16 +24,16 @@
     <form method="GET">
       <select name="status" onchange="this.form.submit()" class="border border-gray-200 rounded-xl px-4 py-2 text-sm outline-none bg-white">
         <option value="">Semua Status</option>
-        <option value="pending"  {{ request('status')==='pending'?'selected':'' }}>⏳ Pending</option>
-        <option value="approved" {{ request('status')==='approved'?'selected':'' }}>✅ Disetujui</option>
-        <option value="rejected" {{ request('status')==='rejected'?'selected':'' }}>❌ Ditolak</option>
+        <option value="pending"  {{ request('status')==='pending'?'selected':'' }}> Pending</option>
+        <option value="approved" {{ request('status')==='approved'?'selected':'' }}> Disetujui</option>
+        <option value="rejected" {{ request('status')==='rejected'?'selected':'' }}> Ditolak</option>
       </select>
     </form>
   </div>
 
   @if($pengajuan->isEmpty())
   <div class="bg-white border border-gray-100 rounded-2xl p-16 text-center shadow-sm">
-    <div class="text-5xl mb-3">📭</div>
+    <div class="text-5xl mb-3"></div>
     <p class="text-gray-500">Tidak ada pengajuan ditemukan</p>
   </div>
   @else
@@ -63,7 +63,7 @@
         <div class="flex-shrink-0 text-right">
           <span class="text-xs font-semibold px-3 py-1 rounded-full inline-block mb-2
             {{ $app->status==='pending'?'badge-pending':($app->status==='approved'?'badge-approved':'badge-rejected') }}">
-            {{ $app->status==='pending'?'⏳ Pending':($app->status==='approved'?'✅ Disetujui':'❌ Ditolak') }}
+            {{ $app->status==='pending'?' Pending':($app->status==='approved'?' Disetujui':' Ditolak') }}
           </span>
           @if($app->reviewed_at)
             <p class="text-gray-400 text-xs">{{ $app->reviewed_at->format('d M Y') }}</p>
@@ -80,12 +80,12 @@
           <form method="POST" action="{{ route('admin.pengajuan-eo.approve', $app) }}">
             @csrf
             <button type="submit" class="text-sm bg-green-500 text-white font-semibold px-4 py-2 rounded-xl hover:bg-green-600 transition-all">
-              ✅ Setujui
+               Setujui
             </button>
           </form>
           <button onclick="bukaReject({{ $app->id }})"
                   class="text-sm bg-red-50 text-red-600 font-semibold px-4 py-2 rounded-xl hover:bg-red-100 transition-all border border-red-200">
-            ❌ Tolak
+             Tolak
           </button>
           @endif
         </div>

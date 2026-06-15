@@ -2,6 +2,7 @@
 @section('title', 'Pembayaran — TicketIn')
 
 @push('styles')
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 {{-- Cegah browser cache halaman ini (back button tidak kembali ke state lama) --}}
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
@@ -33,7 +34,7 @@
   .e-ticket::before { content:''; position:absolute; top:50%; left:-12px; width:24px; height:24px; background:#f9fafb; border-radius:50%; transform:translateY(-50%); }
   .e-ticket::after  { content:''; position:absolute; top:50%; right:-12px; width:24px; height:24px; background:#f9fafb; border-radius:50%; transform:translateY(-50%); }
   .ticket-dashed { border-top:2px dashed rgba(255,255,255,.2); margin:16px 0; }
-  .qr-box { background:repeating-conic-gradient(white 0% 25%,#102A71 0% 50%) 0 0 / 7px 7px; border-radius:8px; }
+  .qr-box canvas { border-radius:8px; } .qr-box-pay { display:flex; justify-content:center; margin-bottom:8px; } .qr-box-pay canvas { border-radius:8px; }
 
   /* Confetti */
   @keyframes fall { 0%{transform:translateY(-50px) rotate(0);opacity:1}100%{transform:translateY(105vh) rotate(540deg);opacity:0} }
@@ -110,7 +111,7 @@
             </div>
             <button class="copy-btn" onclick="copyVA()">Salin</button>
           </div>
-          <p class="text-xs text-gray-400 mt-2">⚠️ Nomor VA hanya berlaku untuk 1x transaksi ini</p>
+          <p class="text-xs text-gray-400 mt-2">️ Nomor VA hanya berlaku untuk 1x transaksi ini</p>
         </div>
 
         <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Cara Pembayaran via {{ strtoupper($order->metode_bayar) }}</p>
@@ -145,7 +146,7 @@
           <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">
             @if($metode === 'qris') Scan QR Code @else Kode Pembayaran @endif
           </p>
-          <div class="qr-box w-40 h-40 mx-auto mb-4 shadow-inner"></div>
+          <div class="qr-box-pay" id="qr-payment-box"></div>
           <p class="text-xs text-gray-400">QR Code berlaku selama <span class="font-bold text-navy-mid" id="qr-countdown">14:59</span></p>
         </div>
 
@@ -213,7 +214,7 @@
     {{-- Tombol Konfirmasi --}}
     <button onclick="konfirmasiPembayaran()"
             class="w-full bg-gold text-navy-deep font-bold py-4 rounded-xl hover:bg-gold-light transition-all hover:shadow-lg hover:shadow-gold/30 text-sm mb-3">
-      ✅ Konfirmasi Pembayaran Sudah Dilakukan
+       Konfirmasi Pembayaran Sudah Dilakukan
     </button>
     <a href="{{ route('dashboard') }}" class="block w-full text-center text-gray-400 hover:text-navy-mid text-sm py-2 transition-colors">
       Bayar Nanti
@@ -243,7 +244,7 @@
 
     {{-- Warning: tampil jika konfirmasi server gagal --}}
     <div id="sukses-warning" class="hidden mb-4 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 flex items-start gap-3 text-sm text-amber-800">
-      <span class="text-lg flex-shrink-0">⚠️</span>
+      <span class="text-lg flex-shrink-0">️</span>
       <span>Pembayaran sedang diverifikasi. Jika tiket belum muncul dalam 5 menit, hubungi <a href="mailto:cs@ticketin.com" class="font-semibold underline">cs@ticketin.com</a> dengan kode order <strong>{{ $order->order_code }}</strong>.</span>
     </div>
     <div id="confetti-container" class="fixed inset-0 pointer-events-none z-50 overflow-hidden"></div>
@@ -254,7 +255,7 @@
           <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
         </svg>
       </div>
-      <h2 class="text-2xl font-extrabold text-navy-deep mb-2">Pembayaran Berhasil! 🎉</h2>
+      <h2 class="text-2xl font-extrabold text-navy-deep mb-2">Pembayaran Berhasil! </h2>
       <p class="text-gray-500 text-sm leading-relaxed mb-6">
         Terima kasih <strong class="text-navy-mid">{{ $order->user->nama_lengkap }}</strong>!<br>
         E-ticket kamu sudah siap di bawah ini.
@@ -291,7 +292,7 @@
           <p class="text-white/50 text-xs mb-1">Kode Tiket</p>
           <p class="font-mono font-extrabold text-white tracking-widest">{{ $order->order_code }}</p>
         </div>
-        <div class="qr-box w-20 h-20 shadow-inner flex-shrink-0"></div>
+        <div id="qr-ticket-box"></div>
       </div>
 
       <div class="mt-4 text-center text-xs text-white/40">
@@ -356,6 +357,40 @@
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
+
+  // ── QR Code Generation ────────────────────────────────────────
+  function generatePaymentQR() {
+    const box = document.getElementById('qr-payment-box');
+    if (!box || box.querySelector('canvas')) return;
+    // QR berisi kode order + timestamp random untuk simulasi
+    const qrData = 'TICKETIN-PAY-{{ $order->order_code }}-' + Date.now();
+    new QRCode(box, {
+      text: qrData,
+      width: 160,
+      height: 160,
+      colorDark: '#102A71',
+      colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.M
+    });
+  }
+
+  function generateTicketQR() {
+    const box = document.getElementById('qr-ticket-box');
+    if (!box || box.querySelector('canvas')) return;
+    new QRCode(box, {
+      text: '{{ $order->order_code }}',
+      width: 80,
+      height: 80,
+      colorDark: '#102A71',
+      colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.M
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    generatePaymentQR();
+  });
+
   // ── Konfirmasi Pembayaran ─────────────────────────────────
   let _konfirmasiDone = false; // cegah double-submit
 
@@ -385,6 +420,7 @@
       if (!data) return;
       // Tampilkan step sukses
       showStep('step-sukses');
+      generateTicketQR();
       buatConfetti();
       // Ganti history entry agar tombol back tidak kembali ke step instruksi
       history.replaceState(null, '', window.location.href);

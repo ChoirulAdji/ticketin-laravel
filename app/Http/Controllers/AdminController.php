@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\EoApplication;
+use App\Models\HeroSlider;
 use App\Models\Event;
 use App\Models\Order;
 use App\Models\User;
@@ -23,7 +24,7 @@ class AdminController extends Controller
             'total_pesanan'  => Order::count(),
             'total_pendapatan' => Order::where('status','paid')->sum('total_harga'),
             'pending_eo'     => EoApplication::where('status','pending')->count(),
-            'pending_event'  => Event::where('status','draft')->count(),
+            'pending_event'  => Event::where('status','pending_review')->count(),
         ];
 
         // Grafik pendapatan 6 bulan
@@ -58,8 +59,26 @@ class AdminController extends Controller
         // Pengajuan EO pending
         $pengajuanPending = EoApplication::where('status','pending')->with('user')->latest()->take(5)->get();
 
+        // Pie chart 1: Distribusi metode pembayaran
+        $pieMetode = Order::where('status','paid')
+            ->selectRaw('metode_bayar, COUNT(*) as total')
+            ->groupBy('metode_bayar')
+            ->pluck('total','metode_bayar');
+
+        // Pie chart 2: Status pesanan
+        $pieStatus = Order::selectRaw('status, COUNT(*) as total')
+            ->groupBy('status')
+            ->pluck('total','status');
+
+        // Pie chart 3: Distribusi kategori event
+        $pieKategori = Event::published()
+            ->selectRaw('kategori, COUNT(*) as total')
+            ->groupBy('kategori')
+            ->pluck('total','kategori');
+
         return view('admin.dashboard', compact(
-            'stats', 'grafikPendapatan', 'eoBest', 'eventPopuler', 'pesananTerbaru', 'pengajuanPending'
+            'stats', 'grafikPendapatan', 'eoBest', 'eventPopuler', 'pesananTerbaru', 'pengajuanPending',
+            'pieMetode', 'pieStatus', 'pieKategori'
         ));
     }
 
@@ -100,22 +119,50 @@ class AdminController extends Controller
     public function events(Request $request): View
     {
         $query = Event::with(['pengelola'])->withCount('orders');
-        if ($request->filled('status')) $query->where('status', $request->status);
+        // Default tampilkan pending_review dulu
+        $status = $request->get('status', 'pending_review');
+        $query->where('status', $status);
         if ($request->filled('search')) $query->where('judul','like','%'.$request->search.'%');
         $events = $query->latest()->paginate(20);
-        return view('admin.events', compact('events'));
+
+        $counts = [
+            'pending_review' => Event::where('status','pending_review')->count(),
+            'published'      => Event::where('status','published')->count(),
+            'draft'          => Event::where('status','draft')->count(),
+            'cancelled'      => Event::where('status','cancelled')->count(),
+        ];
+
+        return view('admin.events', compact('events', 'counts', 'status'));
     }
 
     public function approveEvent(Event $event): RedirectResponse
     {
-        $event->update(['status' => 'published']);
-        return back()->with('success', 'Event '.$event->judul.' berhasil dipublish.');
+        $event->update([
+            'status'      => 'published',
+            'approved_at' => now(),
+            'approved_by' => Auth::id(),
+        ]);
+
+        // Auto-tambah ke hero slider jika ada gambar cover
+        if ($event->gambar_cover && !HeroSlider::where('event_id', $event->id)->exists()) {
+            HeroSlider::create([
+                'event_id' => $event->id,
+                'urutan'   => HeroSlider::max('urutan') + 1,
+                'aktif'    => true,
+            ]);
+        }
+
+        return back()->with('success', '✅ Event "'.$event->judul.'" berhasil di-approve dan sekarang tampil ke publik.');
     }
 
-    public function rejectEvent(Event $event): RedirectResponse
+    public function rejectEvent(Request $request, Event $event): RedirectResponse
     {
-        $event->update(['status' => 'cancelled']);
-        return back()->with('success', 'Event '.$event->judul.' berhasil ditolak.');
+        $request->validate(['alasan' => ['nullable','string','max:500']]);
+        $event->update([
+            'status'         => 'draft',
+            'catatan_admin'  => $request->alasan,
+        ]);
+        return back()->with('success', '❌ Event "'.$event->judul.'" ditolak dan dikembalikan ke EO.');
     }
 
     public function hapusEvent(Event $event): RedirectResponse
@@ -164,7 +211,7 @@ class AdminController extends Controller
     // ── Semua Pesanan ─────────────────────────────────────────────
     public function pesanan(Request $request): View
     {
-        $query = Order::with(['user','event'])->latest();
+        $query = Order::with(['user','event.pengelola','items.ticketCategory'])->latest();
         if ($request->filled('status')) $query->where('status', $request->status);
         $orders = $query->paginate(20);
 

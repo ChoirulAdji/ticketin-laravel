@@ -22,7 +22,7 @@
 
   <!-- Form Profil -->
   <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
-    <h2 class="font-bold text-navy-deep text-lg mb-5">👤 Informasi Akun</h2>
+    <h2 class="font-bold text-navy-deep text-lg mb-5"> Informasi Akun</h2>
     @if($errors->hasAny(['nama_lengkap','email','foto_profil']))
       <div class="bg-red-50 border border-red-200 text-red-700 p-3 rounded-xl mb-5 text-sm">
         @foreach(['nama_lengkap','email','foto_profil'] as $f) @if($errors->has($f))<p>{{ $errors->first($f) }}</p>@endif @endforeach
@@ -56,18 +56,18 @@
       <div>
         <label class="form-label">Role Akun</label>
         <div class="form-input px-4 py-3 text-sm text-gray-400 cursor-not-allowed bg-gray-50">
-          {{ $user->role==='pengelola' ? '🎭 Pengelola Event (EO)' : ($user->role==='admin' ? '👑 Admin' : '🎟️ Pembeli Tiket') }}
+          {{ $user->role==='pengelola' ? ' Pengelola Event (EO)' : ($user->role==='admin' ? ' Admin' : ' Pembeli Tiket') }}
         </div>
       </div>
       <button type="submit" class="w-full bg-gold text-navy-deep font-bold py-3.5 rounded-xl hover:bg-gold-light transition-all text-sm">
-        💾 Simpan Perubahan
+         Simpan Perubahan
       </button>
     </form>
   </div>
 
   <!-- Ganti Password -->
   <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-    <h2 class="font-bold text-navy-deep text-lg mb-5">🔐 Ganti Password</h2>
+    <h2 class="font-bold text-navy-deep text-lg mb-5"> Ganti Password</h2>
     @if($errors->hasAny(['current_password','password']))
       <div class="bg-red-50 border border-red-200 text-red-700 p-3 rounded-xl mb-5 text-sm">
         @foreach(['current_password','password'] as $f) @if($errors->has($f))<p>{{ $errors->first($f) }}</p>@endif @endforeach
@@ -88,7 +88,7 @@
         <input type="password" name="password_confirmation" placeholder="Ulangi password baru" class="form-input px-4 py-3 text-sm" required>
       </div>
       <button type="submit" class="w-full bg-navy-mid text-white font-bold py-3.5 rounded-xl hover:bg-navy-deep transition-all text-sm">
-        🔐 Ubah Password
+         Ubah Password
       </button>
     </form>
   </div>

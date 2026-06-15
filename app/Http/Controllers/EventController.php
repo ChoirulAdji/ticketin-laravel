@@ -34,12 +34,16 @@ class EventController extends Controller
         }
 
         // Sort
-        match ($request->get('sort', 'terdekat')) {
-            'terbaru'  => $query->orderByDesc('created_at'),
-            'termurah' => $query->orderBy('harga_termurah'),
-            'termahal' => $query->orderByDesc('harga_termurah'),
-            default    => $query->orderBy('tanggal_waktu'),
-        };
+        $sort = $request->get('sort', 'terdekat');
+        if ($sort === 'termurah') {
+            $query->orderByRaw('(SELECT MIN(harga) FROM ticket_categories WHERE ticket_categories.event_id = events.id) ASC');
+        } elseif ($sort === 'termahal') {
+            $query->orderByRaw('(SELECT MIN(harga) FROM ticket_categories WHERE ticket_categories.event_id = events.id) DESC');
+        } elseif ($sort === 'terbaru') {
+            $query->orderByDesc('created_at');
+        } else {
+            $query->orderBy('tanggal_waktu');
+        }
 
         $events      = $query->paginate(12)->withQueryString();
         $kategoris   = Event::published()->distinct()->pluck('kategori')->sort()->values();
@@ -52,7 +56,9 @@ class EventController extends Controller
     // Detail event
     public function show(Event $event): View
     {
-        if ($event->status !== 'published') {
+        // Admin bisa preview semua status, user biasa hanya bisa lihat yang published
+        $isAdmin = auth()->check() && auth()->user()->role === 'admin';
+        if (!$isAdmin && $event->status !== 'published') {
             abort(404);
         }
 

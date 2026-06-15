@@ -90,7 +90,7 @@
         </div>
 
         @if(session('sent'))
-          <div class="bg-green-50 border border-green-300 text-green-700 p-4 rounded-xl mb-5 text-sm">✅ Pesan berhasil dikirim! Kami akan segera menghubungi Anda.</div>
+          <div class="bg-green-50 border border-green-300 text-green-700 p-4 rounded-xl mb-5 text-sm"> Pesan berhasil dikirim! Kami akan segera menghubungi Anda.</div>
         @endif
 
         <div class="space-y-5" id="contact-form">

@@ -37,7 +37,7 @@
 
   {{-- Stats row --}}
   <div class="grid grid-cols-4 gap-4 mb-6">
-    @foreach([['Total',$stats['total'],'text-navy-deep','bg-navy-mid/10'],['✅ Lunas',$stats['paid'],'text-green-700','bg-green-50'],['⏳ Pending',$stats['pending'],'text-yellow-700','bg-yellow-50'],['❌ Batal',$stats['cancelled'],'text-red-700','bg-red-50']] as [$l,$v,$c,$bg])
+    @foreach([['Total',$stats['total'],'text-navy-deep','bg-navy-mid/10'],[' Lunas',$stats['paid'],'text-green-700','bg-green-50'],[' Pending',$stats['pending'],'text-yellow-700','bg-yellow-50'],[' Batal',$stats['cancelled'],'text-red-700','bg-red-50']] as [$l,$v,$c,$bg])
     <div class="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm {{ $bg }}">
       <p class="text-2xl font-extrabold {{ $c }}">{{ $v }}</p>
       <p class="text-gray-500 text-xs mt-1">{{ $l }}</p>
@@ -48,7 +48,7 @@
   <div class="bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden">
     @if($orders->isEmpty())
       <div class="py-20 text-center text-gray-400">
-        <div class="text-4xl mb-3">📭</div>
+        <div class="text-4xl mb-3"></div>
         <p>Tidak ada pesanan ditemukan</p>
       </div>
     @else
@@ -98,7 +98,7 @@
               </td>
               <td class="px-4 py-4">
                 <span class="text-xs font-semibold px-2 py-1 rounded-full {{ $order->status==='paid'?'badge-paid':($order->status==='pending'?'badge-pending':'badge-cancelled') }}">
-                  {{ $order->status==='paid'?'✅ Lunas':($order->status==='pending'?'⏳ Pending':'❌ Batal') }}
+                  {{ $order->status==='paid'?' Lunas':($order->status==='pending'?' Pending':' Batal') }}
                 </span>
               </td>
               <td class="px-4 py-4">

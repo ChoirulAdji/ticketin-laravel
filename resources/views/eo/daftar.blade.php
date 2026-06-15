@@ -30,12 +30,12 @@
         <h2 class="font-bold text-lg mb-5 text-gold">Keuntungan Jadi EO</h2>
         <div class="space-y-3">
           @foreach([
-            ['🎭','Buat Event Tak Terbatas','Buat dan publish event kapan saja'],
-            ['🎟️','Kelola Tiket Sendiri','Atur kategori, harga, dan kuota tiket'],
-            ['📊','Dashboard Lengkap','Pantau penjualan dan pendapatan real-time'],
-            ['💰','Cairkan Dana Cepat','Dana event langsung ke rekeningmu'],
-            ['🔔','Notifikasi Realtime','Info langsung tiap ada pesanan baru'],
-            ['📈','Laporan Detail','Export laporan penjualan per event'],
+            ['','Buat Event Tak Terbatas','Buat dan publish event kapan saja'],
+            ['','Kelola Tiket Sendiri','Atur kategori, harga, dan kuota tiket'],
+            ['','Dashboard Lengkap','Pantau penjualan dan pendapatan real-time'],
+            ['','Cairkan Dana Cepat','Dana event langsung ke rekeningmu'],
+            ['','Notifikasi Realtime','Info langsung tiap ada pesanan baru'],
+            ['','Laporan Detail','Export laporan penjualan per event'],
           ] as [$icon,$title,$desc])
           <div class="flex items-start gap-3 p-3 rounded-xl" style="background:rgba(255,255,255,.08)">
             <span class="text-xl flex-shrink-0">{{ $icon }}</span>
@@ -179,7 +179,7 @@
         </div>
 
         <button type="submit" class="w-full bg-gold text-navy-deep font-bold py-4 rounded-xl hover:bg-gold-light transition-all text-sm">
-          🚀 Kirim Pengajuan Jadi EO
+           Kirim Pengajuan Jadi EO
         </button>
       </form>
     </div>

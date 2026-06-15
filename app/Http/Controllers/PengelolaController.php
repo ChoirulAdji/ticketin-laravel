@@ -33,7 +33,34 @@ class PengelolaController extends Controller
         $totalPesanan = Order::whereHas('event', fn($q) => $q->where('pengelola_id', $user->id))
                              ->count();
 
-        return view('pengelola.dashboard', compact('events', 'totalPendapatan', 'totalPesanan'));
+        // Notifikasi pesanan baru (eager load user & event agar tidak lazy load)
+        $newOrders = Order::whereHas('event', fn($q) => $q->where('pengelola_id', $user->id))
+                          ->with(['user', 'event'])
+                          ->where('status', 'pending')
+                          ->latest()
+                          ->limit(10)
+                          ->get();
+
+        // Pie chart: penjualan per kategori tiket
+        $pieKategoriTiket = \App\Models\OrderItem::whereHas('order', fn($q) =>
+                $q->where('status','paid')
+                  ->whereHas('event', fn($q2) => $q2->where('pengelola_id', $user->id))
+            )
+            ->with('ticketCategory')
+            ->get()
+            ->groupBy(fn($i) => $i->ticketCategory->nama_kategori ?? 'Lainnya')
+            ->map(fn($g) => $g->sum('qty'));
+
+        // Pie chart: status pesanan EO
+        $piePesananStatus = Order::whereHas('event', fn($q) => $q->where('pengelola_id', $user->id))
+            ->selectRaw('status, COUNT(*) as total')
+            ->groupBy('status')
+            ->pluck('total','status');
+
+        return view('pengelola.dashboard', compact(
+            'events', 'totalPendapatan', 'totalPesanan', 'newOrders',
+            'pieKategoriTiket', 'piePesananStatus'
+        ));
     }
 
     // ── Semua Pesanan ──────────────────────────────────────────────
@@ -85,6 +112,11 @@ class PengelolaController extends Controller
             $data['gambar_cover'] = $request->file('gambar_cover')->store('events', 'public');
         }
 
+        // EO selalu masuk pending_review dulu, kecuali kalau sengaja pilih cancelled
+        if (!isset($data['status']) || $data['status'] !== 'cancelled') {
+            $data['status'] = 'pending_review';
+        }
+
         $event = Event::create($data);
 
         $this->simpanKategoriTiket($request, $event);
@@ -119,6 +151,11 @@ class PengelolaController extends Controller
                 Storage::disk('public')->delete($event->gambar_cover);
             }
             $data['gambar_cover'] = $request->file('gambar_cover')->store('events', 'public');
+        }
+
+        // Semua edit dari EO masuk pending_review kecuali sengaja cancelled
+        if (!isset($data['status']) || $data['status'] !== 'cancelled') {
+            $data['status'] = 'pending_review';
         }
 
         $event->update($data);
@@ -187,7 +224,7 @@ class PengelolaController extends Controller
             'tanggal'      => ['required', 'date'],
             'waktu'        => ['required'],
             'deskripsi'    => ['nullable', 'string'],
-            'status'       => ['required', 'in:draft,published,cancelled'],
+            'status'       => ['required', 'in:draft,cancelled'], // EO tidak bisa langsung publish
             'gambar_cover'      => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
             'cover_cropped'     => ['nullable', 'string', 'max:8000000'], // ~6MB base64
             'gallery_cropped'   => ['nullable', 'array', 'max:8'],        // maks 8 foto
@@ -248,57 +285,67 @@ class PengelolaController extends Controller
 
     private function saveCroppedImage(string $base64, string $folder): string
     {
-        // 1. Strip data URI prefix
-        $base64    = preg_replace('/^data:image\/\w+;base64,/', '', $base64);
-        $imageData = base64_decode($base64, strict: true);
+        // 1. Strip data URI prefix (data:image/jpeg;base64, dst)
+        $base64    = preg_replace('/^data:image\/[a-zA-Z+]+;base64,/', '', $base64);
+        $imageData = base64_decode($base64);
 
-        // 2. Validasi — base64 decode harus berhasil dan ukuran wajar (maks 6MB decoded)
-        if ($imageData === false || strlen($imageData) > 6 * 1024 * 1024) {
+        // 2. Validasi ukuran (maks 6MB decoded)
+        if (empty($imageData) || strlen($imageData) > 6 * 1024 * 1024) {
             abort(422, 'File gambar tidak valid atau terlalu besar.');
         }
 
-        // 3. Cek magic bytes — tolak file yang bukan gambar nyata
-        $allowedMagic = [
-            "ÿØÿ"     => 'jpg',
-            "PNG
-
-"=> 'png',
-            'GIF87a'           => 'gif',
-            'GIF89a'           => 'gif',
-            'RIFF'             => 'webp',
-        ];
-        $isImage = false;
-        foreach ($allowedMagic as $magic => $type) {
-            if (str_starts_with($imageData, $magic)) { $isImage = true; break; }
-        }
-        if (!$isImage) {
-            abort(422, 'Format file gambar tidak dikenali.');
+        // 3. Cek magic bytes pakai ord() — reliable di semua encoding
+        $b0 = ord($imageData[0] ?? '');
+        $b1 = ord($imageData[1] ?? '');
+        $b2 = ord($imageData[2] ?? '');
+
+        $isJpeg = ($b0 === 0xFF && $b1 === 0xD8 && $b2 === 0xFF);
+        $isPng  = ($b0 === 0x89 && $b1 === 0x50 && $b2 === 0x4E);
+        $isGif  = (substr($imageData, 0, 6) === 'GIF87a' || substr($imageData, 0, 6) === 'GIF89a');
+        $isWebp = (substr($imageData, 0, 4) === 'RIFF' && substr($imageData, 8, 4) === 'WEBP');
+
+        if (!$isJpeg && !$isPng && !$isGif && !$isWebp) {
+            abort(422, 'Format file gambar tidak dikenali. Gunakan JPG, PNG, atau WebP.');
         }
 
-        // 4. Buat resource GD untuk resize
-        $src = @imagecreatefromstring($imageData);
-        if (!$src) {
-            abort(422, 'File gambar tidak dapat diproses.');
-        }
-
-        // 5. Tentukan dimensi target
-        $isGallery = str_contains($folder, 'gallery');
-        $targetW   = $isGallery ? 1200 : 1200;
-        $targetH   = $isGallery ? 900  : 630;
-
-        $filename = $folder . '/' . uniqid('img_', true) . '.webp';
+        // 4. Simpan file — pakai GD untuk resize jika tersedia, fallback langsung simpan
+        $ext      = $isJpeg ? 'jpg' : ($isPng ? 'png' : ($isWebp ? 'webp' : 'gif'));
+        $filename = $folder . '/' . uniqid('img_', true) . '.' . $ext;
         $fullPath = storage_path('app/public/' . $filename);
         $dir      = dirname($fullPath);
         if (!is_dir($dir)) mkdir($dir, 0775, true);
 
-        $dst = imagecreatetruecolor($targetW, $targetH);
-        imagealphablending($dst, false);
-        imagesavealpha($dst, true);
-        imagecopyresampled($dst, $src, 0, 0, 0, 0, $targetW, $targetH, imagesx($src), imagesy($src));
-        imagewebp($dst, $fullPath, 85);
-        imagedestroy($src);
-        imagedestroy($dst);
+        if (extension_loaded('gd')) {
+            // GD tersedia — resize ke dimensi optimal
+            $src = @imagecreatefromstring($imageData);
+            if ($src) {
+                $isGallery = str_contains($folder, 'gallery');
+                $targetW   = $isGallery ? 1200 : 1200;
+                $targetH   = $isGallery ? 900  : 630;
 
+                $dst = imagecreatetruecolor($targetW, $targetH);
+                imagealphablending($dst, false);
+                imagesavealpha($dst, true);
+                imagecopyresampled($dst, $src, 0, 0, 0, 0, $targetW, $targetH, imagesx($src), imagesy($src));
+
+                // Simpan sebagai WebP jika didukung, fallback ke JPEG
+                $filename = $folder . '/' . uniqid('img_', true) . '.webp';
+                $fullPath = storage_path('app/public/' . $filename);
+                if (function_exists('imagewebp')) {
+                    imagewebp($dst, $fullPath, 85);
+                } else {
+                    $filename = $folder . '/' . uniqid('img_', true) . '.jpg';
+                    $fullPath = storage_path('app/public/' . $filename);
+                    imagejpeg($dst, $fullPath, 88);
+                }
+                imagedestroy($src);
+                imagedestroy($dst);
+                return $filename;
+            }
+        }
+
+        // Fallback: GD tidak tersedia atau gagal — simpan file langsung
+        file_put_contents($fullPath, $imageData);
         return $filename;
     }
 
