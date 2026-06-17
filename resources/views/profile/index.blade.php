@@ -21,6 +21,22 @@
   .modal-overlay.show .modal-box { transform:scale(1); }
   .confirm-modal { position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:110; display:flex; align-items:center; justify-content:center; padding:20px; opacity:0; pointer-events:none; transition:opacity .3s; }
   .confirm-modal.show { opacity:1; pointer-events:all; }
+  @media print {
+    @page { size: A4 portrait; margin: 12mm; }
+    html,
+    body { width:100%!important; height:auto!important; min-height:0!important; margin:0!important; padding:0!important; overflow:visible!important; background:white!important; }
+    body > header,
+    body > footer,
+    main > :not(#tiket-modal) { display:none!important; }
+    main { display:block!important; margin:0!important; padding:0!important; }
+    #tiket-modal { position:static!important; display:block!important; width:100%!important; min-height:0!important; background:white!important; padding:0!important; margin:0!important; opacity:1!important; pointer-events:none!important; }
+    #tiket-modal .modal-box { position:static!important; transform:none!important; width:100%!important; max-width:420px!important; max-height:none!important; overflow:visible!important; margin:0 auto!important; box-shadow:none!important; border-radius:0!important; background:white!important; }
+    #tiket-modal .modal-box > .flex,
+    #tiket-modal .modal-box > .p-5 > :not(.print-area),
+    #tiket-modal .print-hide { display:none!important; }
+    #tiket-modal .modal-box > .p-5 { padding:0!important; }
+    #tiket-modal .print-area { page-break-inside:avoid!important; break-inside:avoid!important; margin:0!important; box-shadow:none!important; }
+  }
 </style>
 @endpush
 
@@ -62,7 +78,7 @@
         <p class="text-gray-400 text-xs mt-0.5">Total Pesanan</p>
       </div>
       <div class="text-center">
-        <p class="text-2xl font-extrabold text-gold">{{ $orders->where('status','paid')->count() }}</p>
+        <p class="text-2xl font-extrabold text-gold">{{ $orders->where('status','paid')->sum('total_qty') }}</p>
         <p class="text-gray-400 text-xs mt-0.5">Tiket Aktif</p>
       </div>
       <div class="text-center">
@@ -99,6 +115,20 @@
       @else
       <div class="space-y-6">
         @foreach($paidOrders as $order)
+        @php
+          $tickets = [];
+          $ticketIndex = 0;
+          foreach ($order->items as $item) {
+              for ($unit = 1; $unit <= $item->qty; $unit++) {
+                  $ticketIndex++;
+                  $tickets[] = [
+                      'code' => $order->order_code . '-' . str_pad($ticketIndex, 3, '0', STR_PAD_LEFT),
+                      'category' => $item->ticketCategory->nama_kategori ?? 'Tiket',
+                      'price' => 'Rp ' . number_format($item->harga_satuan, 0, ',', '.'),
+                  ];
+              }
+          }
+        @endphp
         <div class="eticket-wrap">
           <div class="ticket-body shadow-xl">
             <div class="p-5 pb-0">
@@ -134,34 +164,31 @@
               </div>
             </div>
             <div class="px-5"><div class="ticket-dashed"></div></div>
-            <div class="p-5 pt-0 flex items-center justify-between gap-4">
+            <div class="p-5 pt-0 flex flex-col lg:flex-row lg:items-start justify-between gap-4">
               <div class="flex-1 min-w-0">
                 <p class="text-white/50 text-xs mb-1">Nama Pemesan</p>
                 <p class="text-white font-bold text-sm truncate">{{ $user->nama_lengkap }}</p>
-                <p class="text-white/40 text-xs mt-2 mb-0.5">Kode Tiket</p>
+                <p class="text-white/40 text-xs mt-2 mb-0.5">Kode Order</p>
                 <p class="font-mono font-extrabold text-gold tracking-widest text-sm">{{ $order->order_code }}</p>
                 <p class="text-white/30 text-xs mt-3">Venue: {{ $order->event->venue }}</p>
               </div>
-              <div class="flex flex-col items-center gap-2 flex-shrink-0">
-                <div class="qr-canvas" id="qr-{{ $order->order_code }}"></div>
-                <p class="text-white/40 text-xs text-center">Scan di pintu<br>masuk event</p>
+              <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 flex-shrink-0">
+                @foreach($tickets as $ticket)
+                <div class="flex flex-col items-center gap-1 bg-white/5 border border-white/10 rounded-xl p-2">
+                  <div class="qr-canvas" id="qr-{{ $ticket['code'] }}"></div>
+                  <p class="font-mono text-gold text-[10px] font-bold text-center">{{ $ticket['code'] }}</p>
+                  <p class="text-white/40 text-[10px] text-center">{{ $ticket['category'] }}</p>
+                </div>
+                @endforeach
               </div>
             </div>
           </div>
 
           {{-- Tombol aksi tiket --}}
           <div class="flex gap-2 mt-3">
-            <button onclick="lihatTiket({{ $order->id }})" class="flex-1 bg-navy-mid text-white font-semibold py-2.5 rounded-xl hover:bg-navy-deep transition-all text-sm flex items-center justify-center gap-2">
-              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-              Lihat Detail
-            </button>
-            <button onclick="printTiket({{ $order->id }})" class="flex-1 bg-white border border-gray-200 text-gray-700 font-semibold py-2.5 rounded-xl hover:bg-gray-50 transition-all text-sm flex items-center justify-center gap-2">
+            <button onclick="printTiket({{ $order->id }})" class="w-full bg-white border border-gray-200 text-gray-700 font-semibold py-2.5 rounded-xl hover:bg-gray-50 transition-all text-sm flex items-center justify-center gap-2">
               <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
               Print
-            </button>
-            <button onclick="bagikanTiket('{{ $order->order_code }}', '{{ addslashes($order->event->judul) }}')" class="bg-gold text-navy-deep font-semibold py-2.5 px-4 rounded-xl hover:bg-gold-light transition-all text-sm flex items-center justify-center gap-2">
-              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
-              Bagikan
             </button>
           </div>
 
@@ -177,6 +204,7 @@
                data-kode="{{ $order->order_code }}"
                data-nama="{{ $user->nama_lengkap }}"
                data-total="Rp {{ number_format($order->total_harga,0,',','.') }}"
+               data-tickets='@json($tickets)'
                data-cover="{{ $order->event->cover_url }}">
           </div>
         </div>
@@ -341,7 +369,7 @@
     </div>
     <div class="p-5">
       <img id="m-cover" src="" alt="" class="w-full h-36 object-cover rounded-xl mb-4">
-      <div style="background:linear-gradient(135deg,#102A71,#001840);border-radius:16px;color:white;position:relative;overflow:visible;">
+      <div class="print-area" style="background:linear-gradient(135deg,#102A71,#001840);border-radius:16px;color:white;position:relative;overflow:visible;">
         <div style="position:absolute;top:50%;left:-8px;width:16px;height:16px;background:#f3f4f6;border-radius:50%;transform:translateY(-50%);z-index:2;"></div>
         <div style="position:absolute;top:50%;right:-8px;width:16px;height:16px;background:#f3f4f6;border-radius:50%;transform:translateY(-50%);z-index:2;"></div>
         <div style="padding:20px 20px 12px;">
@@ -365,19 +393,19 @@
           <div style="flex:1;min-width:0;">
             <p style="color:rgba(255,255,255,.4);font-size:10px;margin-bottom:3px;">Pemesan</p>
             <p id="m-nama" style="font-weight:700;font-size:13px;"></p>
-            <p style="color:rgba(255,255,255,.4);font-size:10px;margin-top:10px;margin-bottom:3px;">Kode Tiket</p>
+            <p style="color:rgba(255,255,255,.4);font-size:10px;margin-top:10px;margin-bottom:3px;">Kode Order</p>
             <p id="m-kode" style="font-family:monospace;font-weight:800;color:#F5C400;letter-spacing:.1em;font-size:13px;"></p>
             <p style="color:rgba(255,255,255,.3);font-size:10px;margin-top:8px;">Venue: <span id="m-venue"></span></p>
             <p id="m-total" style="color:rgba(255,255,255,.5);font-size:11px;margin-top:4px;"></p>
           </div>
-          <div id="modal-qr-box" style="width:80px;height:80px;flex-shrink:0;border-radius:8px;overflow:hidden;"></div>
+          <div id="modal-qr-box" style="display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px;max-width:190px;flex-shrink:0;"></div>
         </div>
       </div>
-      <div class="mt-4 bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-700 flex gap-2 items-start">
+      <div class="print-hide mt-4 bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-700 flex gap-2 items-start">
         <svg class="w-4 h-4 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
         Tunjukkan QR Code ini kepada petugas di pintu masuk event.
       </div>
-      <div class="flex gap-3 mt-4">
+      <div class="print-hide flex gap-3 mt-4">
         <button onclick="window.print()" class="flex-1 bg-gray-100 text-gray-700 font-semibold py-3 rounded-xl hover:bg-gray-200 transition-all text-sm flex items-center justify-center gap-2">
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
           Print
@@ -419,6 +447,8 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
   // Generate QR code untuk setiap tiket
+  if (typeof QRCode === 'undefined') return;
+
   document.querySelectorAll('[id^="qr-"]').forEach(function(el) {
     const code = el.id.replace('qr-', '');
     new QRCode(el, {
@@ -434,14 +464,21 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 <script>
   function switchTab(name) {
-    const names = ['tiket','riwayat'];
+    const names = ['tiket','riwayat','favorit'];
     document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', names[i]===name));
     document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
     document.getElementById('tab-'+name).classList.add('active');
   }
 
+  function escapeHtml(value) {
+    const div = document.createElement('div');
+    div.textContent = value;
+    return div.innerHTML;
+  }
+
   function lihatTiket(id) {
     const d = document.getElementById('order-data-'+id).dataset;
+    const tickets = JSON.parse(d.tickets || '[]');
     document.getElementById('m-cover').src           = d.cover;
     document.getElementById('m-judul').textContent   = d.judul;
     document.getElementById('m-tanggal').textContent = d.tanggal;
@@ -452,26 +489,43 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('m-kode').textContent    = d.kode;
     document.getElementById('m-venue').textContent   = d.venue;
     document.getElementById('m-total').textContent   = 'Total: ' + d.total;
-    document.getElementById('m-summary-wrap').innerHTML = d.summary.split(',').map(s =>
-      '<span style="background:rgba(245,196,0,.2);color:#F5C400;border:1px solid rgba(245,196,0,.3);font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;display:inline-block;margin:2px;">'+s.trim()+'</span>'
+    document.getElementById('m-summary-wrap').innerHTML = (d.summary || '').split(',').filter(Boolean).map(s =>
+      '<span style="background:rgba(245,196,0,.2);color:#F5C400;border:1px solid rgba(245,196,0,.3);font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;display:inline-block;margin:2px;">'+escapeHtml(s.trim())+'</span>'
     ).join('');
     document.getElementById('share-btn').onclick = () => bagikanTiket(d.kode, d.judul);
-    // Generate QR code berdasarkan kode tiket
-    const kode = btn.dataset.kode || btn.closest('[data-kode]')?.dataset.kode || document.getElementById('m-kode')?.textContent || '';
-    if (kode) {
-      setTimeout(() => {
-        const mqrEl = document.getElementById('modal-qr-box');
-        if (mqrEl && !mqrEl.querySelector('canvas')) {
-          new QRCode(mqrEl, {
-            text: kode,
-            width: 80,
-            height: 80,
+    // Generate QR code untuk tiap tiket dalam satu order.
+    const mqrEl = document.getElementById('modal-qr-box');
+    if (mqrEl) {
+      mqrEl.innerHTML = '';
+      tickets.forEach(ticket => {
+        const wrap = document.createElement('div');
+        wrap.style.cssText = 'width:86px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:5px;text-align:center;';
+        const qr = document.createElement('div');
+        qr.style.cssText = 'width:64px;height:64px;margin:0 auto 4px;border-radius:6px;overflow:hidden;';
+        const code = document.createElement('p');
+        code.style.cssText = 'font-family:monospace;color:#F5C400;font-size:9px;font-weight:800;line-height:1.2;word-break:break-all;';
+        code.textContent = ticket.code;
+        const category = document.createElement('p');
+        category.style.cssText = 'color:rgba(255,255,255,.45);font-size:8px;line-height:1.2;margin-top:2px;';
+        category.textContent = ticket.category;
+        wrap.appendChild(qr);
+        wrap.appendChild(code);
+        wrap.appendChild(category);
+        mqrEl.appendChild(wrap);
+
+        if (typeof QRCode !== 'undefined') {
+          new QRCode(qr, {
+            text: ticket.code,
+            width: 64,
+            height: 64,
             colorDark: '#102A71',
             colorLight: '#ffffff',
             correctLevel: QRCode.CorrectLevel.M
           });
+        } else {
+          qr.innerHTML = '<div style="width:64px;height:64px;background:white;color:#102A71;border-radius:6px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:8px;font-weight:800;padding:6px;">'+escapeHtml(ticket.code)+'</div>';
         }
-      }, 100);
+      });
     }
     document.getElementById('tiket-modal').classList.add('show');
   }
