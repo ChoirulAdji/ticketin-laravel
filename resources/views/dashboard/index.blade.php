@@ -12,25 +12,6 @@
     box-shadow: 0 20px 40px rgba(0, 24, 64, 0.15);
   }
 
-  .dot.active {
-    background-color: #F5C400;
-    transform: scale(1.3);
-  }
-
-  .dot {
-    transition: all 0.3s;
-  }
-
-  .slider-track {
-    display: flex;
-    transition: transform 0.6s cubic-bezier(0.77, 0, 0.175, 1);
-  }
-
-  .slide {
-    min-width: 100%;
-    position: relative;
-  }
-
   .badge-popular {
     animation: badgePulse 2s infinite;
   }
@@ -52,58 +33,8 @@
 @section('content')
 
 <!-- HERO SLIDER -->
-<section class="pt-[96px] pb-6 max-w-7xl mx-auto px-6">
-  <div class="relative w-full rounded-2xl overflow-hidden shadow-md group" style="max-height:500px;aspect-ratio:21/9;">
-
-    <div id="slider" class="slider-track h-full">
-      @if($eventsSlider->isNotEmpty())
-      @foreach($eventsSlider as $slide)
-      @php
-      // Support both HeroSlider model and fallback Event object
-      $slideImg = method_exists($slide, 'getAttribute') && $slide->getAttribute('image_url')
-      ? $slide->image_url
-      : ($slide->cover_url ?? '');
-      $slideLink = method_exists($slide, 'getAttribute') && isset($slide->link)
-      ? $slide->link
-      : ($slide->event_id ? route('events.show', $slide->event_id) : '#');
-      $slideTitle = $slide->title ?? $slide->judul ?? '';
-      @endphp
-      <div class="slide h-full cursor-pointer relative" onclick="location.href='{{ $slideLink }}'">
-        <img src="{{ $slideImg }}"
-          onerror="this.src='https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=1400&q=80'"
-          alt="{{ $slideTitle }}" class="w-full h-full object-cover" />
-        @if($slideTitle)
-        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent px-8 py-6">
-          <p class="text-white font-bold text-xl drop-shadow">{{ $slideTitle }}</p>
-        </div>
-        @endif
-      </div>
-      @endforeach
-      @else
-      <div class="slide h-full"><img src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=1400&q=80" class="w-full h-full object-cover" /></div>
-      <div class="slide h-full"><img src="https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=1400&q=80" class="w-full h-full object-cover" /></div>
-      <div class="slide h-full"><img src="https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=1400&q=80" class="w-full h-full object-cover" /></div>
-      @endif
-    </div>
-
-    <button id="prev-btn" class="absolute left-4 top-1/2 -translate-y-1/2 bg-white/30 hover:bg-gold text-white hover:text-navy-deep backdrop-blur-sm w-10 h-10 rounded-full flex items-center justify-center transition-all z-10 opacity-0 group-hover:opacity-100">
-      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-      </svg>
-    </button>
-    <button id="next-btn" class="absolute right-4 top-1/2 -translate-y-1/2 bg-white/30 hover:bg-gold text-white hover:text-navy-deep backdrop-blur-sm w-10 h-10 rounded-full flex items-center justify-center transition-all z-10 opacity-0 group-hover:opacity-100">
-      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-      </svg>
-    </button>
-
-    <div id="dots" class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
-      @php $slideCount = $eventsSlider->isNotEmpty() ? $eventsSlider->count() : 3; @endphp
-      @for($i = 0; $i < $slideCount; $i++)
-        <button class="dot w-2.5 h-2.5 rounded-full {{ $i==0?'bg-white active':'bg-white/50' }}" data-index="{{ $i }}"></button>
-        @endfor
-    </div>
-  </div>
+<section class="pt-[96px] pb-6 max-w-7xl mx-auto px-6 sm:px-6 px-0">
+  @include('partials.hero-slider', ['slides' => $eventsSlider])
 </section>
 
 <!-- EVENT TERDEKAT -->
@@ -242,27 +173,4 @@
 @endsection
 
 @push('scripts')
-<script>
-  const track = document.querySelector('.slider-track');
-  const slides = document.querySelectorAll('.slide');
-  const dots = document.querySelectorAll('.dot');
-  const prevBtn = document.getElementById('prev-btn');
-  const nextBtn = document.getElementById('next-btn');
-  let current = 0;
-
-  function goTo(n) {
-    current = (n + slides.length) % slides.length;
-    track.style.transform = `translateX(-${current * 100}%)`;
-    dots.forEach((d, i) => {
-      d.classList.toggle('active', i === current);
-      d.classList.toggle('bg-white', i === current);
-      d.classList.toggle('bg-white/50', i !== current);
-    });
-  }
-
-  nextBtn?.addEventListener('click', () => goTo(current + 1));
-  prevBtn?.addEventListener('click', () => goTo(current - 1));
-  dots.forEach((d, i) => d.addEventListener('click', () => goTo(i)));
-  setInterval(() => goTo(current + 1), 5000);
-</script>
 @endpush
