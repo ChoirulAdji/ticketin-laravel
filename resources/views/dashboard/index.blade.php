@@ -53,7 +53,7 @@
 
 <!-- HERO SLIDER -->
 <section class="pt-[96px] pb-6 max-w-7xl mx-auto px-6">
-  <div class="relative w-full rounded-2xl overflow-hidden shadow-md group" style="max-height:400px;aspect-ratio:21/9;">
+  <div class="relative w-full rounded-2xl overflow-hidden shadow-md group" style="max-height:500px;aspect-ratio:21/9;">
 
     <div id="slider" class="slider-track h-full">
       @if($eventsSlider->isNotEmpty())
