@@ -10,7 +10,7 @@
 @endpush
 
 @section('content')
-<div class="pt-24 max-w-2xl mx-auto px-6 py-10">
+<div class="pt-28 sm:pt-32 max-w-2xl mx-auto px-6 pb-10">
   <div class="flex items-center gap-3 mb-8">
     <a href="{{ route('profile.index') }}" class="text-gray-400 hover:text-navy-mid transition-colors">
       <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>

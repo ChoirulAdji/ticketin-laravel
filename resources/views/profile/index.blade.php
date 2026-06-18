@@ -79,7 +79,7 @@
 @endpush
 
 @section('content')
-<div class="pt-24 max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
+<div class="pt-28 sm:pt-32 max-w-5xl mx-auto px-4 sm:px-6 pb-8 sm:pb-10">
 
 
 
