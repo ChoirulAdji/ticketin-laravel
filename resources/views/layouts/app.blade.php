@@ -118,6 +118,18 @@
     @media (max-width: 640px) {
       .event-card {
         height: 154px !important;
+      flex-direction: row !important;
+      border-radius: 14px !important;
+      box-shadow: 0 6px 18px rgba(15,23,42,.06) !important;
+    }
+    .event-card:hover { transform: none; box-shadow: 0 6px 18px rgba(15,23,42,.08); }
+    .event-card > .overflow-hidden.flex-shrink-0 { width: 124px !important; height: 100% !important; }
+    .event-card > .p-4 { padding: 12px !important; min-width: 0; }
+    .event-card h3 { min-height: 0 !important; margin-bottom: 6px !important; }
+    .event-card button { padding: 7px 10px !important; border-radius: 10px !important; }
+    }@media (max-width: 640px) {
+      .event-card {
+        height: 154px !important;
         flex-direction: row !important;
         border-radius: 14px !important;
         box-shadow: 0 6px 18px rgba(15,23,42,.06) !important;
