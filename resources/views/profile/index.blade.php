@@ -15,6 +15,15 @@
   .eticket-wrap .ticket-body::after  { content:''; position:absolute; top:50%; right:-10px; width:20px; height:20px; background:#f3f4f6; border-radius:50%; transform:translateY(-50%); z-index:2; }
   .ticket-dashed { border-top:2px dashed rgba(255,255,255,.2); margin:14px 0; }
   .qr-canvas canvas { border-radius:8px; width:96px!important; height:96px!important; }
+  .ticket-qr canvas { width:72px!important; height:72px!important; }
+  .ticket-code { overflow-wrap:anywhere; }
+  .modal-ticket-body { padding:12px 20px 20px; display:flex; flex-direction:column; gap:16px; }
+  #modal-qr-box { justify-content:flex-start; max-width:none; }
+  @media (min-width:640px) {
+    .ticket-qr canvas { width:96px!important; height:96px!important; }
+    .modal-ticket-body { flex-direction:row; align-items:center; justify-content:space-between; }
+    #modal-qr-box { justify-content:flex-end; max-width:190px; }
+  }
   .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:100; display:flex; align-items:center; justify-content:center; padding:20px; opacity:0; pointer-events:none; transition:opacity .3s; }
   .modal-overlay.show { opacity:1; pointer-events:all; }
   .modal-box { background:white; border-radius:24px; width:100%; max-width:420px; max-height:90vh; overflow-y:auto; transform:scale(.95); transition:transform .3s; }
@@ -41,7 +50,7 @@
 @endpush
 
 @section('content')
-<div class="pt-24 max-w-5xl mx-auto px-6 py-10">
+<div class="pt-24 max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
 
 
 
@@ -172,11 +181,11 @@
                 <p class="font-mono font-extrabold text-gold tracking-widest text-sm">{{ $order->order_code }}</p>
                 <p class="text-white/30 text-xs mt-3">Venue: {{ $order->event->venue }}</p>
               </div>
-              <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 flex-shrink-0">
+              <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3 w-full lg:w-auto flex-shrink-0">
                 @foreach($tickets as $ticket)
-                <div class="flex flex-col items-center gap-1 bg-white/5 border border-white/10 rounded-xl p-2">
-                  <div class="qr-canvas" id="qr-{{ $ticket['code'] }}"></div>
-                  <p class="font-mono text-gold text-[10px] font-bold text-center">{{ $ticket['code'] }}</p>
+                <div class="flex flex-col items-center gap-1 bg-white/5 border border-white/10 rounded-xl p-2 min-w-0">
+                  <div class="qr-canvas ticket-qr" id="qr-{{ $ticket['code'] }}"></div>
+                  <p class="ticket-code font-mono text-gold text-[10px] font-bold text-center leading-tight">{{ $ticket['code'] }}</p>
                   <p class="text-white/40 text-[10px] text-center">{{ $ticket['category'] }}</p>
                 </div>
                 @endforeach
@@ -389,7 +398,7 @@
           <div id="m-summary-wrap" style="margin-bottom:12px;"></div>
         </div>
         <div style="padding:0 20px;"><div style="border-top:2px dashed rgba(255,255,255,.2);margin:4px 0;"></div></div>
-        <div style="padding:12px 20px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;">
+        <div class="modal-ticket-body">
           <div style="flex:1;min-width:0;">
             <p style="color:rgba(255,255,255,.4);font-size:10px;margin-bottom:3px;">Pemesan</p>
             <p id="m-nama" style="font-weight:700;font-size:13px;"></p>
@@ -398,7 +407,7 @@
             <p style="color:rgba(255,255,255,.3);font-size:10px;margin-top:8px;">Venue: <span id="m-venue"></span></p>
             <p id="m-total" style="color:rgba(255,255,255,.5);font-size:11px;margin-top:4px;"></p>
           </div>
-          <div id="modal-qr-box" style="display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px;max-width:190px;flex-shrink:0;"></div>
+          <div id="modal-qr-box" style="display:flex;flex-wrap:wrap;gap:8px;flex-shrink:0;"></div>
         </div>
       </div>
       <div class="print-hide mt-4 bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-700 flex gap-2 items-start">
