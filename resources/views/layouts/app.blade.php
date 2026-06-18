@@ -22,14 +22,13 @@
   </script>
   <style>
     * { font-family: 'Poppins', sans-serif; }
+    body { padding-bottom: 0; }
     .event-card { transition: transform 0.3s ease, box-shadow 0.3s ease; display: flex; flex-direction: column; text-decoration: none; }
     .event-card:hover { transform: translateY(-6px) scale(1.02); box-shadow: 0 20px 40px rgba(0,24,64,0.15); }
     a.event-card { display: flex !important; flex-direction: column !important; }
     .nav-link { position: relative; }
     .nav-link::after { content: ''; position: absolute; bottom: -4px; left: 0; width: 0; height: 2px; background: #F5C400; transition: width 0.3s ease; }
     .nav-link:hover::after { width: 100%; }
-    #mobile-menu { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
-    #mobile-menu.open { max-height: 400px; }
     .dot.active { background-color: #F5C400; transform: scale(1.3); }
     .dot { transition: all 0.3s; }
     .slider-track { display: flex; transition: transform 0.6s cubic-bezier(0.77,0,0.175,1); }
@@ -40,6 +39,82 @@
     .footer-link:hover { color: #F5C400; padding-left: 4px; }
     .fade-in { opacity: 0; transform: translateY(24px); transition: opacity 0.6s ease, transform 0.6s ease; }
     .fade-in.visible { opacity: 1; transform: none; }
+
+    /* ============ MOBILE-ONLY UI ============ */
+
+    /* Avatar pill di navbar mobile (pengganti hamburger lama) */
+    #mobile-avatar-pill {
+      display: none;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 20px;
+      padding: 4px 10px 4px 4px;
+      cursor: pointer;
+    }
+    #mobile-avatar-pill img { width: 26px; height: 26px; border-radius: 50%; object-fit: cover; }
+    #mobile-avatar-pill span { font-size: 13px; font-weight: 600; }
+
+    /* Slide-up sheet (pengganti dropdown mobile-menu lama) */
+    #mobile-sheet-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+      z-index: 90; opacity: 0; pointer-events: none; transition: opacity 0.25s ease;
+    }
+    #mobile-sheet-overlay.open { opacity: 1; pointer-events: all; }
+    #mobile-sheet {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: white; border-radius: 20px 20px 0 0;
+      z-index: 95; padding: 0 0 calc(env(safe-area-inset-bottom, 0px) + 24px);
+      transform: translateY(100%);
+      transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+      max-height: 80vh; overflow-y: auto;
+    }
+    #mobile-sheet-overlay.open #mobile-sheet { transform: translateY(0); }
+    .sheet-handle { width: 36px; height: 4px; background: #e2e8f0; border-radius: 2px; margin: 12px auto 16px; }
+    .sheet-profile { display: flex; align-items: center; gap: 12px; padding: 0 20px 16px; border-bottom: 1px solid #f1f5f9; }
+    .sheet-avatar-img { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; }
+    .sheet-name { font-size: 15px; font-weight: 600; color: #001840; }
+    .sheet-role { font-size: 12px; color: #64748b; }
+    .sheet-menu { padding: 8px 0; }
+    .sheet-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 20px; font-size: 14px; font-weight: 500; color: #334155;
+      cursor: pointer; width: 100%; text-align: left; background: none; border: none;
+    }
+    .sheet-item:active { background: #f8fafc; }
+    .sheet-item.danger { color: #ef4444; }
+    .sheet-item svg { width: 18px; height: 18px; flex-shrink: 0; }
+    .sheet-divider { height: 1px; background: #f1f5f9; margin: 4px 0; }
+
+    /* Bottom navigation bar — mobile only */
+    #bottom-nav {
+      display: none;
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: #102A71;
+      z-index: 50;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+    }
+    #bottom-nav .bn-row { display: flex; }
+    .bn-item {
+      flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 9px 0 7px; gap: 3px;
+      color: rgba(255,255,255,0.5);
+      font-size: 10px; font-weight: 500;
+      text-decoration: none;
+    }
+    .bn-item.active { color: #F5C400; }
+    .bn-item svg { width: 21px; height: 21px; }
+
+    @media (max-width: 767px) {
+      #desktop-actions { display: none !important; }
+      #mobile-avatar-pill { display: flex !important; }
+      #bottom-nav { display: block !important; }
+      body { padding-bottom: 64px; } /* ruang untuk bottom nav */
+      #toast-notif { top: auto !important; bottom: 76px !important; right: 12px !important; left: 12px !important; width: auto !important; max-width: none !important; }
+    }
+
     @media (max-width: 640px) {
       .event-card {
         height: 154px !important;
@@ -48,22 +123,10 @@
         box-shadow: 0 6px 18px rgba(15,23,42,.06) !important;
       }
       .event-card:hover { transform: none; box-shadow: 0 6px 18px rgba(15,23,42,.08); }
-      .event-card > .overflow-hidden.flex-shrink-0 {
-        width: 124px !important;
-        height: 100% !important;
-      }
-      .event-card > .p-4 {
-        padding: 12px !important;
-        min-width: 0;
-      }
-      .event-card h3 {
-        min-height: 0 !important;
-        margin-bottom: 6px !important;
-      }
-      .event-card button {
-        padding: 7px 10px !important;
-        border-radius: 10px !important;
-      }
+      .event-card > .overflow-hidden.flex-shrink-0 { width: 124px !important; height: 100% !important; }
+      .event-card > .p-4 { padding: 12px !important; min-width: 0; }
+      .event-card h3 { min-height: 0 !important; margin-bottom: 6px !important; }
+      .event-card button { padding: 7px 10px !important; border-radius: 10px !important; }
     }
     @stack('styles')
   </style>
@@ -95,8 +158,9 @@
 
       <!-- Actions -->
       <div class="flex items-center gap-4">
-@auth
-          <div class="hidden sm:block relative" id="user-dropdown-wrap">
+        @auth
+          <!-- Desktop dropdown (tetap seperti semula, disembunyikan di mobile) -->
+          <div id="desktop-actions" class="hidden sm:block relative" id="user-dropdown-wrap">
             <button onclick="toggleDropdown()" class="flex items-center gap-2.5 bg-white/10 hover:bg-white/20 border border-white/10 px-3 py-1.5 rounded-full transition-colors duration-300 shadow-sm">
               <img src="{{ auth()->user()->avatar_url }}" class="w-7 h-7 rounded-full object-cover shadow-sm" alt="Avatar">
               <span class="text-sm font-semibold tracking-wide">{{ auth()->user()->nama_panggilan }}</span>
@@ -138,48 +202,23 @@
               </form>
             </div>
           </div>
+
+          <!-- Mobile avatar pill: buka slide-up sheet -->
+          <button id="mobile-avatar-pill" onclick="openMobileSheet()">
+            <img src="{{ auth()->user()->avatar_url }}" alt="Avatar">
+            <span>{{ auth()->user()->nama_panggilan }}</span>
+            <svg class="w-3 h-3 text-white/50" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </button>
         @else
-          <a href="{{ route('login') }}" class="hidden sm:block">
-            <button class="bg-gold text-navy-deep px-6 py-2 rounded-lg font-bold hover:bg-gold-light transition-all duration-300 hover:shadow-lg hover:shadow-gold/30">
+          <a href="{{ route('login') }}">
+            <button class="bg-gold text-navy-deep px-5 sm:px-6 py-2 rounded-lg font-bold hover:bg-gold-light transition-all duration-300 hover:shadow-lg hover:shadow-gold/30 text-sm sm:text-base">
               Masuk
             </button>
           </a>
         @endauth
-
-        <!-- Hamburger -->
-        <button id="menu-btn" class="md:hidden p-1" aria-label="Menu">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-          </svg>
-        </button>
       </div>
     </div>
-
-    <!-- Mobile Menu -->
-    <div id="mobile-menu" class="bg-navy-mid border-t border-white/10">
-      <nav class="flex flex-col px-4 sm:px-6 py-3.5 sm:py-4 gap-3">
-        <a href="{{ route('dashboard') }}" class="text-gold font-medium">Beranda</a>
-        <a href="{{ route('events.index') }}" class="hover:text-gold transition font-medium">Event</a>
-        <a href="{{ route('tentang') }}" class="hover:text-gold transition font-medium">Tentang</a>
-        <a href="{{ route('hubungi') }}" class="hover:text-gold transition font-medium">Hubungi Kami</a>
-        @auth
-          <hr class="border-white/10 my-2">
-          <a href="{{ route('profile.index') }}" class="hover:text-gold transition font-medium">Profil Saya ({{ auth()->user()->nama_panggilan }})</a>
-          @if(auth()->user()->isPengelola())
-            <a href="{{ route('pengelola.dashboard') }}" class="hover:text-gold transition font-medium">Dashboard Pengelola</a>
-          @endif
-          <form method="POST" action="{{ route('logout') }}">
-            @csrf
-            <button type="submit" class="text-red-400 hover:text-red-300 transition font-medium">Keluar</button>
-          </form>
-        @else
-          <hr class="border-white/10 my-2">
-          <a href="{{ route('login') }}" class="text-gold hover:text-gold-light transition font-bold">Masuk / Daftar</a>
-        @endauth
-      </nav>
-    </div>
   </header>
-
 
   <!-- TOAST NOTIFICATION -->
   @if(session('success') || session('error'))
@@ -200,7 +239,6 @@
       const t = document.getElementById('toast-notif');
       if (t) { t.style.opacity = '0'; t.style.transform = 'translateX(100%)'; setTimeout(() => t.remove(), 500); }
     }
-    // Auto hide setelah 5 detik
     setTimeout(tutupToast, 5000);
   </script>
   @endif
@@ -210,11 +248,10 @@
     @yield('content')
   </main>
 
-  <!-- FOOTER -->
-  <footer id="kontak" class="bg-navy-deep text-white mt-10">
+  <!-- FOOTER (disembunyikan di mobile karena digantikan bottom nav; tetap ada untuk SEO & desktop) -->
+  <footer id="kontak" class="bg-navy-deep text-white mt-10 hidden md:block">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12 grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-10">
 
-      <!-- Col 1: Brand + CS -->
       <div>
         <div class="flex items-center gap-2 mb-4">
           <div class="w-8 h-8 bg-gold rounded-lg flex items-center justify-center">
@@ -233,7 +270,6 @@
         </ul>
       </div>
 
-      <!-- Col 2: Sosial Media -->
       <div>
         <h4 class="font-semibold text-gold mb-4 text-sm uppercase tracking-wider">Sosial Media</h4>
         <ul class="space-y-3 text-sm">
@@ -264,7 +300,6 @@
         </ul>
       </div>
 
-      <!-- Col 3: Pembayaran -->
       <div>
         <h4 class="font-semibold text-gold mb-4 text-sm uppercase tracking-wider">Metode Pembayaran</h4>
         <div class="flex flex-wrap items-center gap-4">
@@ -289,26 +324,124 @@
     </div>
   </footer>
 
-  <script>
-    // Mobile menu toggle
-    const menuBtn    = document.getElementById('menu-btn');
-    const mobileMenu = document.getElementById('mobile-menu');
-    menuBtn?.addEventListener('click', () => mobileMenu.classList.toggle('open'));
+  <!-- ===== MOBILE: SLIDE-UP PROFILE SHEET ===== -->
+  @auth
+  <div id="mobile-sheet-overlay" onclick="closeMobileSheet()">
+    <div id="mobile-sheet" onclick="event.stopPropagation()">
+      <div class="sheet-handle"></div>
+      <div class="sheet-profile">
+        <img src="{{ auth()->user()->avatar_url }}" class="sheet-avatar-img" alt="Avatar">
+        <div>
+          <div class="sheet-name">{{ auth()->user()->nama_panggilan }}</div>
+          <div class="sheet-role">
+            @if(auth()->user()->isAdmin()) Admin
+            @elseif(auth()->user()->isPengelola()) Event Organizer
+            @else Member
+            @endif
+          </div>
+        </div>
+      </div>
+      <div class="sheet-menu">
+        <a href="{{ route('profile.index') }}" class="sheet-item">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+          Profil Saya
+        </a>
 
-    // User dropdown toggle
+        @if(auth()->user()->isAdmin())
+          <a href="{{ route('admin.dashboard') }}" class="sheet-item" style="color:#dc2626">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+            Admin Panel
+          </a>
+        @elseif(auth()->user()->isPengelola())
+          <a href="{{ route('pengelola.dashboard') }}" class="sheet-item">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+            Dashboard EO
+          </a>
+        @elseif(!auth()->user()->eoApplication)
+          <a href="{{ route('eo.daftar') }}" class="sheet-item" style="color:#F5C400">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+            Daftar Jadi EO
+          </a>
+        @else
+          <a href="{{ route('eo.status') }}" class="sheet-item" style="color:#ca8a04">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            Status Pengajuan EO
+          </a>
+        @endif
+
+        <div class="sheet-divider"></div>
+        <form method="POST" action="{{ route('logout') }}">
+          @csrf
+          <button type="submit" class="sheet-item danger">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+            Keluar
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+  @endauth
+
+  <!-- ===== MOBILE: BOTTOM NAVIGATION ===== -->
+  <nav id="bottom-nav">
+    <div class="bn-row">
+      <a href="{{ route('dashboard') }}" class="bn-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+        Beranda
+      </a>
+      <a href="{{ route('events.index') }}" class="bn-item {{ request()->routeIs('events.*') ? 'active' : '' }}">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        Jelajahi
+      </a>
+      @auth
+      <a href="{{ route('profile.index') }}#tiket" class="bn-item {{ request()->routeIs('tiket.*') ? 'active' : '' }}">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/></svg>
+        Tiketku
+      </a>
+      <a href="{{ route('profile.index') }}#favorit" class="bn-item {{ request()->routeIs('wishlist.*') ? 'active' : '' }}">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+        Favorit
+      </a>
+      <button onclick="openMobileSheet()" class="bn-item">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+        Profil
+      </button>
+      @else
+      <a href="{{ route('tentang') }}" class="bn-item {{ request()->routeIs('tentang') ? 'active' : '' }}">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        Tentang
+      </a>
+      <a href="{{ route('login') }}" class="bn-item">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H5a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/></svg>
+        Masuk
+      </a>
+      @endauth
+    </div>
+  </nav>
+
+  <script>
+    // User dropdown toggle (desktop)
     function toggleDropdown() {
       const dropdown = document.getElementById('user-dropdown');
       dropdown.classList.toggle('hidden');
     }
-
-    // Tutup dropdown kalau klik di luar
     document.addEventListener('click', function(e) {
-      const wrap    = document.getElementById('user-dropdown-wrap');
+      const wrap = document.getElementById('user-dropdown-wrap');
       const dropdown = document.getElementById('user-dropdown');
       if (wrap && dropdown && !wrap.contains(e.target)) {
         dropdown.classList.add('hidden');
       }
     });
+
+    // Mobile slide-up sheet
+    function openMobileSheet() {
+      document.getElementById('mobile-sheet-overlay')?.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeMobileSheet() {
+      document.getElementById('mobile-sheet-overlay')?.classList.remove('open');
+      document.body.style.overflow = '';
+    }
   </script>
 
   <script>
@@ -316,7 +449,6 @@
   (function () {
     const CSRF = document.querySelector('meta[name=csrf-token]')?.content || '';
 
-    // Init: mark already-wishlisted cards on page load
     function initWishlist() {
       const btns = document.querySelectorAll('.wish-toggle');
       if (!btns.length) return;
@@ -338,7 +470,7 @@
 
     function markActive(btn, active) {
       const icon = btn.querySelector('.wish-icon');
-      btn.dataset.wishlisted = active ? 'true' : 'false'; // state source of truth
+      btn.dataset.wishlisted = active ? 'true' : 'false';
       if (active) {
         icon.setAttribute('fill', '#ef4444');
         icon.setAttribute('stroke', '#ef4444');
@@ -356,9 +488,8 @@
 
     window.toggleWish = function (btn) {
       const url = btn.dataset.url;
-      // Gunakan data-wishlisted attribute sebagai state (lebih reliable dari SVG fill)
       const currentlyActive = btn.dataset.wishlisted === 'true';
-      markActive(btn, !currentlyActive); // optimistic
+      markActive(btn, !currentlyActive);
 
       fetch(url, {
         method: 'POST',
@@ -377,7 +508,7 @@
         markActive(btn, data.wishlisted);
         showWishToast(data.wishlisted);
       })
-      .catch(() => markActive(btn, currentlyActive)); // revert on error
+      .catch(() => markActive(btn, currentlyActive));
     };
 
     function showWishToast(added) {
@@ -385,7 +516,8 @@
       if (!t) {
         t = document.createElement('div');
         t.id = 'wish-toast';
-        t.className = 'fixed bottom-6 left-1/2 -translate-x-1/2 z-[70] px-5 py-2.5 rounded-full text-sm font-semibold shadow-xl transition-all duration-300 opacity-0 pointer-events-none';
+        t.className = 'fixed left-1/2 -translate-x-1/2 z-[70] px-5 py-2.5 rounded-full text-sm font-semibold shadow-xl transition-all duration-300 opacity-0 pointer-events-none';
+        t.style.bottom = window.innerWidth < 768 ? '76px' : '24px';
         document.body.appendChild(t);
       }
       t.textContent = added ? ' Ditambahkan ke Favorit' : ' Dihapus dari Favorit';
