@@ -40,6 +40,31 @@
     .footer-link:hover { color: #F5C400; padding-left: 4px; }
     .fade-in { opacity: 0; transform: translateY(24px); transition: opacity 0.6s ease, transform 0.6s ease; }
     .fade-in.visible { opacity: 1; transform: none; }
+    @media (max-width: 640px) {
+      .event-card {
+        height: 154px !important;
+        flex-direction: row !important;
+        border-radius: 14px !important;
+        box-shadow: 0 6px 18px rgba(15,23,42,.06) !important;
+      }
+      .event-card:hover { transform: none; box-shadow: 0 6px 18px rgba(15,23,42,.08); }
+      .event-card > .overflow-hidden.flex-shrink-0 {
+        width: 124px !important;
+        height: 100% !important;
+      }
+      .event-card > .p-4 {
+        padding: 12px !important;
+        min-width: 0;
+      }
+      .event-card h3 {
+        min-height: 0 !important;
+        margin-bottom: 6px !important;
+      }
+      .event-card button {
+        padding: 7px 10px !important;
+        border-radius: 10px !important;
+      }
+    }
     @stack('styles')
   </style>
   @stack('styles')
@@ -48,7 +73,7 @@
 
   <!-- NAVBAR -->
   <header class="fixed top-0 left-0 w-full bg-navy-mid text-white shadow-lg z-50">
-    <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3.5 sm:py-4 flex justify-between items-center">
 
       <!-- Logo -->
       <a href="{{ route('dashboard') }}" class="flex items-center gap-2 group">
@@ -57,7 +82,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/>
           </svg>
         </div>
-        <span class="text-xl font-bold tracking-tight">TicketIn</span>
+        <span class="text-lg sm:text-xl font-bold tracking-tight">TicketIn</span>
       </a>
 
       <!-- Desktop Nav -->
@@ -132,7 +157,7 @@
 
     <!-- Mobile Menu -->
     <div id="mobile-menu" class="bg-navy-mid border-t border-white/10">
-      <nav class="flex flex-col px-6 py-4 gap-3">
+      <nav class="flex flex-col px-4 sm:px-6 py-3.5 sm:py-4 gap-3">
         <a href="{{ route('dashboard') }}" class="text-gold font-medium">Beranda</a>
         <a href="{{ route('events.index') }}" class="hover:text-gold transition font-medium">Event</a>
         <a href="{{ route('tentang') }}" class="hover:text-gold transition font-medium">Tentang</a>
@@ -187,7 +212,7 @@
 
   <!-- FOOTER -->
   <footer id="kontak" class="bg-navy-deep text-white mt-10">
-    <div class="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-3 gap-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12 grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-10">
 
       <!-- Col 1: Brand + CS -->
       <div>
@@ -254,7 +279,7 @@
     </div>
 
     <div class="border-t border-navy-mid">
-      <div class="max-w-7xl mx-auto px-6 py-5 flex flex-col md:flex-row items-center justify-between gap-2 text-sm text-white/50">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 py-5 flex flex-col md:flex-row items-center justify-between gap-2 text-xs sm:text-sm text-white/50">
         <p>© 2026 TicketIn. All rights reserved.</p>
         <div class="flex gap-4">
           <a href="#" class="hover:text-gold transition-colors">Syarat & Ketentuan</a>
