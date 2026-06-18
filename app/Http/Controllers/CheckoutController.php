@@ -142,12 +142,27 @@ class CheckoutController extends Controller
             session(['last_order_id' => $order->id]);
         });
 
-        // Kirim email ke pembeli & EO setelah transaksi selesai
-        $createdOrder = Order::with(['user', 'event', 'items.ticketCategory'])
-            ->find(session('last_order_id'));
+        $orderId = session('last_order_id');
+        if ($orderId) {
+            $this->sendOrderEmailsAfterResponse((int) $orderId);
+        }
 
-        if ($createdOrder) {
-            // Email ke pembeli
+        return redirect()->route('checkout.sukses');
+    }
+
+    private function sendOrderEmailsAfterResponse(int $orderId): void
+    {
+        app()->terminating(function () use ($orderId) {
+            if (! $this->mailIsConfigured()) {
+                \Log::info('Email order dilewati karena konfigurasi mail belum siap.');
+                return;
+            }
+
+            $createdOrder = Order::with(['user', 'event.pengelola', 'items.ticketCategory'])->find($orderId);
+            if (! $createdOrder) {
+                return;
+            }
+
             try {
                 Mail::to($createdOrder->user->email)
                     ->send(new OrderConfirmationMail($createdOrder));
@@ -155,7 +170,6 @@ class CheckoutController extends Controller
                 \Log::warning('Gagal kirim email konfirmasi ke pembeli: ' . $e->getMessage());
             }
 
-            // Email ke EO (pengelola event)
             $eoEmail = $createdOrder->event->pengelola?->email;
             if ($eoEmail) {
                 try {
@@ -165,9 +179,27 @@ class CheckoutController extends Controller
                     \Log::warning('Gagal kirim email notif ke EO: ' . $e->getMessage());
                 }
             }
+        });
+    }
+
+    private function mailIsConfigured(): bool
+    {
+        $mailer = config('mail.default');
+        $host = config('mail.mailers.smtp.host');
+        $username = config('mail.mailers.smtp.username');
+        $password = config('mail.mailers.smtp.password');
+
+        if (in_array($mailer, ['log', 'array'], true)) {
+            return true;
         }
 
-        return redirect()->route('checkout.sukses');
+        if ($mailer !== 'smtp') {
+            return true;
+        }
+
+        return filled($host)
+            && $username !== 'emailkamu@gmail.com'
+            && $password !== 'app_password_gmail';
     }
 
     // Halaman sukses
