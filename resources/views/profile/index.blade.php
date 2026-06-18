@@ -15,9 +15,43 @@
   .eticket-wrap .ticket-body::after  { content:''; position:absolute; top:50%; right:-10px; width:20px; height:20px; background:#f3f4f6; border-radius:50%; transform:translateY(-50%); z-index:2; }
   .ticket-dashed { border-top:2px dashed rgba(255,255,255,.2); margin:14px 0; }
   .qr-canvas canvas { border-radius:8px; width:96px!important; height:96px!important; }
+  .ticket-qr canvas { width:72px!important; height:72px!important; }
+  .ticket-code { overflow-wrap:anywhere; }
+  .modal-ticket-body { padding:12px 20px 20px; display:flex; flex-direction:column; gap:16px; }
+  #modal-qr-box { justify-content:flex-start; max-width:none; }
+  .print-area { background:#ffffff; border:1px solid #e5e7eb; border-radius:18px; color:#111827; overflow:hidden; position:relative; }
+  .pdf-header { background:linear-gradient(135deg,#102A71,#001840); color:white; padding:22px; position:relative; overflow:hidden; }
+  .pdf-header::after { content:''; position:absolute; right:-44px; top:-44px; width:140px; height:140px; border:22px solid rgba(245,196,0,.18); border-radius:999px; }
+  .pdf-brand { display:flex; align-items:center; justify-content:space-between; gap:14px; position:relative; z-index:1; }
+  .pdf-logo { display:flex; align-items:center; gap:10px; font-weight:800; letter-spacing:.02em; }
+  .pdf-logo-mark { width:34px; height:34px; border-radius:10px; background:#F5C400; color:#001840; display:flex; align-items:center; justify-content:center; font-weight:900; }
+  .pdf-status { background:rgba(34,197,94,.18); color:#86efac; border:1px solid rgba(134,239,172,.35); border-radius:999px; padding:5px 12px; font-size:11px; font-weight:800; }
+  .pdf-event-title { margin-top:22px; font-size:22px; line-height:1.2; font-weight:900; position:relative; z-index:1; }
+  .pdf-order-code { margin-top:8px; color:#F5C400; font-family:monospace; font-weight:900; letter-spacing:.14em; position:relative; z-index:1; }
+  .pdf-body { padding:20px 22px 22px; }
+  .pdf-info-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+  .pdf-info-card { background:#f8fafc; border:1px solid #e5e7eb; border-radius:12px; padding:11px 12px; }
+  .pdf-label { font-size:10px; color:#64748b; font-weight:700; text-transform:uppercase; letter-spacing:.05em; margin-bottom:3px; }
+  .pdf-value { font-size:13px; color:#0f172a; font-weight:800; line-height:1.25; }
+  .pdf-summary { margin-top:12px; display:flex; flex-wrap:wrap; gap:6px; }
+  .pdf-chip { background:#fff7cc; color:#7c5d00; border:1px solid #f5c400; border-radius:999px; padding:4px 10px; font-size:11px; font-weight:800; }
+  .pdf-divider { border-top:1.5px dashed #cbd5e1; margin:18px 0; }
+  .pdf-ticket-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; align-items:stretch; }
+  .pdf-ticket-card { min-height:142px; background:#ffffff; border:1px solid #dbe3ef; border-radius:14px; padding:10px; text-align:center; break-inside:avoid; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; }
+  .pdf-ticket-qr { width:76px; height:76px; margin:0 auto 7px; border-radius:6px; overflow:hidden; background:#fff; border:1px solid #e5e7eb; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .pdf-ticket-qr canvas,
+  .pdf-ticket-qr img { width:76px!important; height:76px!important; border-radius:0!important; display:block!important; }
+  .pdf-ticket-code { min-height:26px; display:flex; align-items:center; justify-content:center; font-family:monospace; font-size:10px; line-height:1.25; color:#102A71; font-weight:900; overflow-wrap:anywhere; word-break:break-word; }
+  .pdf-ticket-category { min-height:22px; display:flex; align-items:flex-start; justify-content:center; margin-top:3px; color:#64748b; font-size:9px; line-height:1.2; overflow:hidden; }
+  .pdf-note { margin-top:14px; background:#fffbeb; border:1px solid #fde68a; border-radius:12px; padding:10px 12px; color:#92400e; font-size:11px; line-height:1.45; }
+  @media (min-width:640px) {
+    .ticket-qr canvas { width:96px!important; height:96px!important; }
+    .modal-ticket-body { flex-direction:row; align-items:center; justify-content:space-between; }
+    #modal-qr-box { justify-content:flex-end; max-width:190px; }
+  }
   .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:100; display:flex; align-items:center; justify-content:center; padding:20px; opacity:0; pointer-events:none; transition:opacity .3s; }
   .modal-overlay.show { opacity:1; pointer-events:all; }
-  .modal-box { background:white; border-radius:24px; width:100%; max-width:420px; max-height:90vh; overflow-y:auto; transform:scale(.95); transition:transform .3s; }
+  .modal-box { background:white; border-radius:24px; width:100%; max-width:720px; max-height:90vh; overflow-y:auto; transform:scale(.95); transition:transform .3s; }
   .modal-overlay.show .modal-box { transform:scale(1); }
   .confirm-modal { position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:110; display:flex; align-items:center; justify-content:center; padding:20px; opacity:0; pointer-events:none; transition:opacity .3s; }
   .confirm-modal.show { opacity:1; pointer-events:all; }
@@ -30,18 +64,22 @@
     main > :not(#tiket-modal) { display:none!important; }
     main { display:block!important; margin:0!important; padding:0!important; }
     #tiket-modal { position:static!important; display:block!important; width:100%!important; min-height:0!important; background:white!important; padding:0!important; margin:0!important; opacity:1!important; pointer-events:none!important; }
-    #tiket-modal .modal-box { position:static!important; transform:none!important; width:100%!important; max-width:420px!important; max-height:none!important; overflow:visible!important; margin:0 auto!important; box-shadow:none!important; border-radius:0!important; background:white!important; }
+    #tiket-modal .modal-box { position:static!important; transform:none!important; width:100%!important; max-width:720px!important; max-height:none!important; overflow:visible!important; margin:0 auto!important; box-shadow:none!important; border-radius:0!important; background:white!important; }
     #tiket-modal .modal-box > .flex,
     #tiket-modal .modal-box > .p-5 > :not(.print-area),
     #tiket-modal .print-hide { display:none!important; }
     #tiket-modal .modal-box > .p-5 { padding:0!important; }
-    #tiket-modal .print-area { page-break-inside:avoid!important; break-inside:avoid!important; margin:0!important; box-shadow:none!important; }
+    #tiket-modal .print-area { page-break-inside:avoid!important; break-inside:avoid!important; margin:0!important; box-shadow:none!important; border-color:#dbe3ef!important; -webkit-print-color-adjust:exact!important; print-color-adjust:exact!important; }
+    #tiket-modal .pdf-header { padding:24px 28px!important; }
+    #tiket-modal .pdf-body { padding:22px 28px 26px!important; }
+    #tiket-modal .pdf-ticket-grid { grid-template-columns:repeat(3,1fr)!important; gap:12px!important; }
+    #tiket-modal .pdf-ticket-card { min-height:142px!important; }
   }
 </style>
 @endpush
 
 @section('content')
-<div class="pt-24 max-w-5xl mx-auto px-6 py-10">
+<div class="pt-28 sm:pt-32 max-w-5xl mx-auto px-4 sm:px-6 pb-8 sm:pb-10">
 
 
 
@@ -172,11 +210,11 @@
                 <p class="font-mono font-extrabold text-gold tracking-widest text-sm">{{ $order->order_code }}</p>
                 <p class="text-white/30 text-xs mt-3">Venue: {{ $order->event->venue }}</p>
               </div>
-              <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 flex-shrink-0">
+              <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3 w-full lg:w-auto flex-shrink-0">
                 @foreach($tickets as $ticket)
-                <div class="flex flex-col items-center gap-1 bg-white/5 border border-white/10 rounded-xl p-2">
-                  <div class="qr-canvas" id="qr-{{ $ticket['code'] }}"></div>
-                  <p class="font-mono text-gold text-[10px] font-bold text-center">{{ $ticket['code'] }}</p>
+                <div class="flex flex-col items-center gap-1 bg-white/5 border border-white/10 rounded-xl p-2 min-w-0">
+                  <div class="qr-canvas ticket-qr" id="qr-{{ $ticket['code'] }}"></div>
+                  <p class="ticket-code font-mono text-gold text-[10px] font-bold text-center leading-tight">{{ $ticket['code'] }}</p>
                   <p class="text-white/40 text-[10px] text-center">{{ $ticket['category'] }}</p>
                 </div>
                 @endforeach
@@ -368,37 +406,56 @@
       </button>
     </div>
     <div class="p-5">
-      <img id="m-cover" src="" alt="" class="w-full h-36 object-cover rounded-xl mb-4">
-      <div class="print-area" style="background:linear-gradient(135deg,#102A71,#001840);border-radius:16px;color:white;position:relative;overflow:visible;">
-        <div style="position:absolute;top:50%;left:-8px;width:16px;height:16px;background:#f3f4f6;border-radius:50%;transform:translateY(-50%);z-index:2;"></div>
-        <div style="position:absolute;top:50%;right:-8px;width:16px;height:16px;background:#f3f4f6;border-radius:50%;transform:translateY(-50%);z-index:2;"></div>
-        <div style="padding:20px 20px 12px;">
-          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">
-            <div style="flex:1;min-width:0;padding-right:12px;">
-              <p style="font-size:10px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px;">E-Ticket TicketIn</p>
-              <p id="m-judul" style="font-size:15px;font-weight:800;line-height:1.3;"></p>
+      <div class="print-area">
+        <div class="pdf-header">
+          <div class="pdf-brand">
+            <div class="pdf-logo">
+              <div class="pdf-logo-mark">T</div>
+              <div>
+                <div style="font-size:15px;line-height:1;">TicketIn</div>
+                <div style="font-size:10px;color:rgba(255,255,255,.6);font-weight:600;margin-top:3px;">Official E-Ticket</div>
+              </div>
             </div>
-            <span style="background:rgba(34,197,94,.2);color:#4ade80;border:1px solid rgba(34,197,94,.3);font-size:10px;font-weight:800;padding:4px 10px;border-radius:20px;flex-shrink:0;">VALID</span>
+            <span class="pdf-status">VALID</span>
           </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
-            <div style="background:rgba(255,255,255,.07);border-radius:10px;padding:10px;"><p style="color:rgba(255,255,255,.4);font-size:10px;margin-bottom:3px;"> Tanggal</p><p id="m-tanggal" style="font-weight:700;font-size:12px;"></p></div>
-            <div style="background:rgba(255,255,255,.07);border-radius:10px;padding:10px;"><p style="color:rgba(255,255,255,.4);font-size:10px;margin-bottom:3px;"> Waktu</p><p id="m-waktu" style="font-weight:700;font-size:12px;"></p></div>
-            <div style="background:rgba(255,255,255,.07);border-radius:10px;padding:10px;"><p style="color:rgba(255,255,255,.4);font-size:10px;margin-bottom:3px;"> Lokasi</p><p id="m-lokasi" style="font-weight:700;font-size:12px;"></p></div>
-            <div style="background:rgba(255,255,255,.07);border-radius:10px;padding:10px;"><p style="color:rgba(255,255,255,.4);font-size:10px;margin-bottom:3px;"> Jumlah</p><p id="m-qty" style="font-weight:700;font-size:12px;"></p></div>
-          </div>
-          <div id="m-summary-wrap" style="margin-bottom:12px;"></div>
+          <div id="m-judul" class="pdf-event-title"></div>
+          <div id="m-kode" class="pdf-order-code"></div>
         </div>
-        <div style="padding:0 20px;"><div style="border-top:2px dashed rgba(255,255,255,.2);margin:4px 0;"></div></div>
-        <div style="padding:12px 20px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;">
-          <div style="flex:1;min-width:0;">
-            <p style="color:rgba(255,255,255,.4);font-size:10px;margin-bottom:3px;">Pemesan</p>
-            <p id="m-nama" style="font-weight:700;font-size:13px;"></p>
-            <p style="color:rgba(255,255,255,.4);font-size:10px;margin-top:10px;margin-bottom:3px;">Kode Order</p>
-            <p id="m-kode" style="font-family:monospace;font-weight:800;color:#F5C400;letter-spacing:.1em;font-size:13px;"></p>
-            <p style="color:rgba(255,255,255,.3);font-size:10px;margin-top:8px;">Venue: <span id="m-venue"></span></p>
-            <p id="m-total" style="color:rgba(255,255,255,.5);font-size:11px;margin-top:4px;"></p>
+        <div class="pdf-body">
+          <div class="pdf-info-grid">
+            <div class="pdf-info-card">
+              <div class="pdf-label">Pemesan</div>
+              <div id="m-nama" class="pdf-value"></div>
+            </div>
+            <div class="pdf-info-card">
+              <div class="pdf-label">Total Pembayaran</div>
+              <div id="m-total" class="pdf-value"></div>
+            </div>
+            <div class="pdf-info-card">
+              <div class="pdf-label">Tanggal</div>
+              <div id="m-tanggal" class="pdf-value"></div>
+            </div>
+            <div class="pdf-info-card">
+              <div class="pdf-label">Waktu</div>
+              <div id="m-waktu" class="pdf-value"></div>
+            </div>
+            <div class="pdf-info-card">
+              <div class="pdf-label">Lokasi</div>
+              <div id="m-lokasi" class="pdf-value"></div>
+            </div>
+            <div class="pdf-info-card">
+              <div class="pdf-label">Jumlah Tiket</div>
+              <div id="m-qty" class="pdf-value"></div>
+            </div>
           </div>
-          <div id="modal-qr-box" style="display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px;max-width:190px;flex-shrink:0;"></div>
+          <div class="pdf-info-card" style="margin-top:10px;">
+            <div class="pdf-label">Venue</div>
+            <div id="m-venue" class="pdf-value"></div>
+          </div>
+          <div id="m-summary-wrap" class="pdf-summary"></div>
+          <div class="pdf-divider"></div>
+          <div id="modal-qr-box" class="pdf-ticket-grid"></div>
+          <div class="pdf-note">Tunjukkan QR Code pada tiket ini kepada petugas di pintu masuk event. Setiap QR hanya berlaku untuk satu tiket.</div>
         </div>
       </div>
       <div class="print-hide mt-4 bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-700 flex gap-2 items-start">
@@ -479,7 +536,6 @@ document.addEventListener('DOMContentLoaded', function() {
   function lihatTiket(id) {
     const d = document.getElementById('order-data-'+id).dataset;
     const tickets = JSON.parse(d.tickets || '[]');
-    document.getElementById('m-cover').src           = d.cover;
     document.getElementById('m-judul').textContent   = d.judul;
     document.getElementById('m-tanggal').textContent = d.tanggal;
     document.getElementById('m-waktu').textContent   = d.waktu + ' WIB';
@@ -488,9 +544,9 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('m-nama').textContent    = d.nama;
     document.getElementById('m-kode').textContent    = d.kode;
     document.getElementById('m-venue').textContent   = d.venue;
-    document.getElementById('m-total').textContent   = 'Total: ' + d.total;
+    document.getElementById('m-total').textContent   = d.total;
     document.getElementById('m-summary-wrap').innerHTML = (d.summary || '').split(',').filter(Boolean).map(s =>
-      '<span style="background:rgba(245,196,0,.2);color:#F5C400;border:1px solid rgba(245,196,0,.3);font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;display:inline-block;margin:2px;">'+escapeHtml(s.trim())+'</span>'
+      '<span class="pdf-chip">'+escapeHtml(s.trim())+'</span>'
     ).join('');
     document.getElementById('share-btn').onclick = () => bagikanTiket(d.kode, d.judul);
     // Generate QR code untuk tiap tiket dalam satu order.
@@ -499,14 +555,14 @@ document.addEventListener('DOMContentLoaded', function() {
       mqrEl.innerHTML = '';
       tickets.forEach(ticket => {
         const wrap = document.createElement('div');
-        wrap.style.cssText = 'width:86px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:5px;text-align:center;';
+        wrap.className = 'pdf-ticket-card';
         const qr = document.createElement('div');
-        qr.style.cssText = 'width:64px;height:64px;margin:0 auto 4px;border-radius:6px;overflow:hidden;';
+        qr.className = 'pdf-ticket-qr';
         const code = document.createElement('p');
-        code.style.cssText = 'font-family:monospace;color:#F5C400;font-size:9px;font-weight:800;line-height:1.2;word-break:break-all;';
+        code.className = 'pdf-ticket-code';
         code.textContent = ticket.code;
         const category = document.createElement('p');
-        category.style.cssText = 'color:rgba(255,255,255,.45);font-size:8px;line-height:1.2;margin-top:2px;';
+        category.className = 'pdf-ticket-category';
         category.textContent = ticket.category;
         wrap.appendChild(qr);
         wrap.appendChild(code);
@@ -516,14 +572,14 @@ document.addEventListener('DOMContentLoaded', function() {
         if (typeof QRCode !== 'undefined') {
           new QRCode(qr, {
             text: ticket.code,
-            width: 64,
-            height: 64,
+            width: 76,
+            height: 76,
             colorDark: '#102A71',
             colorLight: '#ffffff',
             correctLevel: QRCode.CorrectLevel.M
           });
         } else {
-          qr.innerHTML = '<div style="width:64px;height:64px;background:white;color:#102A71;border-radius:6px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:8px;font-weight:800;padding:6px;">'+escapeHtml(ticket.code)+'</div>';
+          qr.innerHTML = '<div style="width:76px;height:76px;background:white;color:#102A71;border-radius:8px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:9px;font-weight:800;padding:6px;">'+escapeHtml(ticket.code)+'</div>';
         }
       });
     }
