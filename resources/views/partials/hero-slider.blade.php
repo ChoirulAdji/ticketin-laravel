@@ -117,7 +117,7 @@
     border-radius: 20px;
     overflow: hidden;
     position: relative;
-    height: 380px;
+    height: 600px;
   }
   .hs-desktop-slide {
     position: absolute; inset: 0;

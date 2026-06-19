@@ -76,7 +76,7 @@
         <div class="mt-5 flex justify-end">
           <button type="submit"
                   class="bg-navy-mid text-white font-bold text-sm px-6 py-2.5 rounded-xl hover:bg-navy-deep transition">
-            ✅ Tambah Slide
+            Tambah Slide
           </button>
         </div>
       </form>
@@ -111,7 +111,7 @@
 
       @if($sliders->isEmpty())
         <div class="py-16 text-center">
-          <p class="text-4xl mb-3">🖼️</p>
+          <p class="text-4xl mb-3"></p>
           <p class="text-gray-500 text-sm">Belum ada slide. Slider akan otomatis pakai foto event terbaru.</p>
         </div>
       @else
@@ -139,9 +139,9 @@
               </p>
               <p class="text-xs text-gray-400 mt-0.5">
                 @if($slider->event_id)
-                  📅 Event: {{ $slider->event?->judul }}
+                  Event: {{ $slider->event?->judul }}
                 @else
-                  🖼️ Banner custom
+                  Banner custom
                 @endif
               </p>
               @if($slider->url_tujuan)
@@ -186,7 +186,7 @@
 
     {{-- Info auto --}}
     <div class="mt-4 bg-blue-50 border border-blue-200 rounded-xl px-4 py-3 text-sm text-blue-700 flex items-start gap-2">
-      <span class="text-lg flex-shrink-0">💡</span>
+      <span class="text-lg flex-shrink-0"></span>
       <span>Jika tidak ada slide yang dikonfigurasi di sini, slider akan otomatis menampilkan foto cover dari event-event yang sudah dipublish.</span>
     </div>
 
