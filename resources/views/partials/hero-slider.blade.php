@@ -1,42 +1,36 @@
-{{--
-  HERO SLIDER PARTIAL
-  Include di halaman beranda:
-    @include('partials.hero-slider', ['slides' => $eventsSlider])
-
-  Tiap item di $slides harus punya:
-    - image_url  : URL gambar banner
-    - title      : Judul slide
-    - link       : URL tujuan saat diklik
-    - (opsional) event : relasi Event (dipakai untuk badge kategori & subtitle tanggal/lokasi)
---}}
-
 @php
   $slides = $slides ?? collect();
+
+  // FIX: gunakan all() bukan toArray() agar Eloquent accessor (image_url, title, link)
+  // tetap bisa dipanggil. toArray() mengubah model jadi plain array sehingga
+  // accessor hilang dan gambar selalu fallback ke URL default yang sama.
   if ($slides instanceof \Illuminate\Support\Collection) {
-      $slidesArr = $slides->toArray();
+      $slidesArr = $slides->all();   // ← array of model objects, accessor tetap aktif
+  } elseif (is_array($slides)) {
+      $slidesArr = $slides;
   } else {
-      $slidesArr = (array) $slides;
+      $slidesArr = [$slides];
   }
   $slideCount = count($slidesArr);
 
   // Fallback dummy jika kosong
   if ($slideCount === 0) {
       $slidesArr = [
-          [
+          (object)[
               'image_url' => 'https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=1200&q=80',
               'title'     => 'Java Jazz Festival 2026',
               'link'      => '#',
               'badge'     => 'Trending',
               'subtitle'  => '2 Agustus 2026 · JIExpo Jakarta',
           ],
-          [
+          (object)[
               'image_url' => 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=1200&q=80',
               'title'     => 'Tech Summit Surabaya',
               'link'      => '#',
               'badge'     => 'Gratis',
               'subtitle'  => '14 Juli 2026 · Grand City Convex',
           ],
-          [
+          (object)[
               'image_url' => 'https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?w=1200&q=80',
               'title'     => 'Surabaya Night Run',
               'link'      => '#',
@@ -50,27 +44,63 @@
   // Normalisasi tiap slide ke array dengan key seragam
   $normalized = [];
   foreach ($slidesArr as $slide) {
+      // $slide bisa: HeroSlider model, plain object (fallback dummy), atau stdClass
       $obj = is_array($slide) ? (object) $slide : $slide;
 
+      // Ambil image_url — untuk HeroSlider ini memanggil getImageUrlAttribute()
+      $imageUrl = null;
+      if (method_exists($obj, 'getImageUrlAttribute')) {
+          $imageUrl = $obj->getImageUrlAttribute();
+      } elseif (isset($obj->image_url)) {
+          $imageUrl = $obj->image_url;
+      }
+      $imageUrl = $imageUrl ?? 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=1400&q=80';
+
+      // Ambil title
+      $titleVal = null;
+      if (method_exists($obj, 'getTitleAttribute')) {
+          $titleVal = $obj->getTitleAttribute();
+      } elseif (isset($obj->title)) {
+          $titleVal = $obj->title;
+      } elseif (isset($obj->judul)) {
+          $titleVal = $obj->judul;
+      }
+      $titleVal = $titleVal ?? '';
+
+      // Ambil link
+      $linkVal = null;
+      if (method_exists($obj, 'getLinkAttribute')) {
+          $linkVal = $obj->getLinkAttribute();
+      } elseif (isset($obj->link)) {
+          $linkVal = $obj->link;
+      } elseif (isset($obj->url_tujuan)) {
+          $linkVal = $obj->url_tujuan;
+      }
+      $linkVal = $linkVal ?? '#';
+
+      // Ambil event relasi (jika ada)
+      $eventObj = isset($obj->event) ? $obj->event : null;
+
       // Ambil badge dari kategori event jika ada, fallback 'Event'
-      $badge = $obj->badge
-          ?? (isset($obj->event) && $obj->event ? ($obj->event->kategori ?? 'Event') : 'Event');
+      $badge = isset($obj->badge)
+          ? $obj->badge
+          : ($eventObj ? ($eventObj->kategori ?? 'Event') : 'Event');
 
       // Subtitle: tanggal + lokasi dari event jika ada
-      if (isset($obj->subtitle)) {
+      if (isset($obj->subtitle) && $obj->subtitle) {
           $subtitle = $obj->subtitle;
-      } elseif (isset($obj->event) && $obj->event && isset($obj->event->tanggal_waktu)) {
-          $tgl = \Carbon\Carbon::parse($obj->event->tanggal_waktu)->translatedFormat('j M Y');
-          $kota = $obj->event->lokasi_kota ?? '';
+      } elseif ($eventObj && isset($eventObj->tanggal_waktu)) {
+          $tgl = \Carbon\Carbon::parse($eventObj->tanggal_waktu)->translatedFormat('j M Y');
+          $kota = $eventObj->lokasi_kota ?? '';
           $subtitle = $tgl . ($kota ? ' · ' . $kota : '');
       } else {
           $subtitle = '';
       }
 
       $normalized[] = [
-          'image_url' => $obj->image_url ?? 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=1400&q=80',
-          'title'     => $obj->title ?? $obj->judul ?? '',
-          'link'      => $obj->link ?? '#',
+          'image_url' => $imageUrl,
+          'title'     => $titleVal,
+          'link'      => $linkVal,
           'badge'     => $badge,
           'subtitle'  => $subtitle,
       ];
