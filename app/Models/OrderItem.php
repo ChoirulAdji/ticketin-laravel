@@ -6,7 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class OrderItem extends Model
 {
-    protected $fillable = ['order_id', 'ticket_category_id', 'qty', 'harga_satuan'];
+    protected $fillable = ['order_id', 'ticket_category_id', 'qty', 'harga_satuan', 'passenger_data'];
+
+    protected $casts = [
+        'passenger_data' => 'array',
+    ];
 
     public function order()
     {

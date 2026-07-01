@@ -1,11 +1,7 @@
 @php
   $slides = $slides ?? collect();
-
-  // FIX: gunakan all() bukan toArray() agar Eloquent accessor (image_url, title, link)
-  // tetap bisa dipanggil. toArray() mengubah model jadi plain array sehingga
-  // accessor hilang dan gambar selalu fallback ke URL default yang sama.
   if ($slides instanceof \Illuminate\Support\Collection) {
-      $slidesArr = $slides->all();   // ← array of model objects, accessor tetap aktif
+      $slidesArr = $slides->all();   
   } elseif (is_array($slides)) {
       $slidesArr = $slides;
   } else {
@@ -13,41 +9,10 @@
   }
   $slideCount = count($slidesArr);
 
-  // Fallback dummy jika kosong
-  if ($slideCount === 0) {
-      $slidesArr = [
-          (object)[
-              'image_url' => 'https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=1200&q=80',
-              'title'     => 'Java Jazz Festival 2026',
-              'link'      => '#',
-              'badge'     => 'Trending',
-              'subtitle'  => '2 Agustus 2026 · JIExpo Jakarta',
-          ],
-          (object)[
-              'image_url' => 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=1200&q=80',
-              'title'     => 'Tech Summit Surabaya',
-              'link'      => '#',
-              'badge'     => 'Gratis',
-              'subtitle'  => '14 Juli 2026 · Grand City Convex',
-          ],
-          (object)[
-              'image_url' => 'https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?w=1200&q=80',
-              'title'     => 'Surabaya Night Run',
-              'link'      => '#',
-              'badge'     => 'Hot',
-              'subtitle'  => '20 Juli 2026 · Taman Bungkul',
-          ],
-      ];
-      $slideCount = 3;
-  }
-
-  // Normalisasi tiap slide ke array dengan key seragam
   $normalized = [];
   foreach ($slidesArr as $slide) {
-      // $slide bisa: HeroSlider model, plain object (fallback dummy), atau stdClass
-      $obj = is_array($slide) ? (object) $slide : $slide;
+            $obj = is_array($slide) ? (object) $slide : $slide;
 
-      // Ambil image_url — untuk HeroSlider ini memanggil getImageUrlAttribute()
       $imageUrl = null;
       if (method_exists($obj, 'getImageUrlAttribute')) {
           $imageUrl = $obj->getImageUrlAttribute();
@@ -117,7 +82,7 @@
     border-radius: 20px;
     overflow: hidden;
     position: relative;
-    height: 600px;
+    height: 500px;
   }
   .hs-desktop-slide {
     position: absolute; inset: 0;
@@ -128,25 +93,14 @@
   }
   .hs-desktop-overlay {
     position: absolute; inset: 0;
-    background: linear-gradient(90deg, rgba(0,24,64,0.85) 0%, rgba(0,24,64,0.35) 55%, rgba(0,24,64,0.05) 100%);
-    display: flex; flex-direction: column; justify-content: center;
-    padding: 0 56px;
-  }
-  .hs-badge {
-    align-self: flex-start;
-    background: #F5C400; color: #001840;
-    font-size: 12px; font-weight: 700;
-    padding: 5px 14px; border-radius: 8px;
-    margin-bottom: 14px;
-    text-transform: uppercase;
+    background: linear-gradient(180deg, rgba(0,24,64,0.0) 30%, rgba(0,24,64,0.75) 100%);
+    display: flex; flex-direction: column; justify-content: flex-end;
+    padding: 36px 48px;
   }
   .hs-desktop-title {
     color: white; font-size: 34px; font-weight: 700;
-    max-width: 460px; line-height: 1.25; margin-bottom: 10px;
-  }
-  .hs-desktop-subtitle {
-    color: rgba(255,255,255,0.8); font-size: 15px; font-weight: 500;
-    display: flex; align-items: center; gap: 6px;
+    max-width: 560px; line-height: 1.25; margin: 0;
+    text-shadow: 0 2px 12px rgba(0,0,0,0.4);
   }
 
   /* Desktop arrow & dots */
@@ -164,7 +118,7 @@
   .hs-arrow.next { right: 20px; }
 
   .hs-desktop-dots {
-    position: absolute; bottom: 18px; left: 56px;
+    position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%);
     display: flex; gap: 8px; z-index: 10;
   }
   .hs-desktop-dots .hs-dot {
@@ -220,32 +174,19 @@
     .hs-mobile-overlay {
       position: absolute; inset: 0;
       background: linear-gradient(180deg,
-        rgba(0,24,64,0.03) 0%,
-        rgba(0,24,64,0.12) 35%,
-        rgba(0,24,64,0.88) 100%);
+        rgba(0,24,64,0.0) 40%,
+        rgba(0,24,64,0.80) 100%);
       display: flex; flex-direction: column; justify-content: flex-end;
       padding: 16px;
     }
-    .hs-mobile-badge {
-      align-self: flex-start;
-      background: #F5C400; color: #001840;
-      font-size: 10.5px; font-weight: 700;
-      padding: 3px 10px; border-radius: 7px;
-      margin-bottom: 8px;
-      text-transform: uppercase;
-    }
     .hs-mobile-title {
       color: white; font-size: 16px; font-weight: 700;
-      line-height: 1.3; margin-bottom: 4px;
+      line-height: 1.3; margin: 0;
+      text-shadow: 0 1px 6px rgba(0,0,0,0.4);
       display: -webkit-box;
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
-    }
-    .hs-mobile-subtitle {
-      color: rgba(255,255,255,0.75);
-      font-size: 12px; font-weight: 500;
-      display: flex; align-items: center; gap: 4px;
     }
 
     /* Dots mobile */
@@ -277,19 +218,7 @@
              onerror="this.src='https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=1400&q=80'"
              alt="{{ $slide['title'] }}">
         <div class="hs-desktop-overlay">
-          @if($slide['badge'])
-            <span class="hs-badge">{{ $slide['badge'] }}</span>
-          @endif
           <h2 class="hs-desktop-title">{{ $slide['title'] }}</h2>
-          @if($slide['subtitle'])
-            <p class="hs-desktop-subtitle">
-              <svg style="width:14px;height:14px;flex-shrink:0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-              </svg>
-              {{ $slide['subtitle'] }}
-            </p>
-          @endif
         </div>
       </a>
     @endforeach
@@ -322,19 +251,7 @@
                alt="{{ $slide['title'] }}"
                loading="{{ $i === 0 ? 'eager' : 'lazy' }}">
           <div class="hs-mobile-overlay">
-            @if($slide['badge'])
-              <span class="hs-mobile-badge">{{ $slide['badge'] }}</span>
-            @endif
             <div class="hs-mobile-title">{{ $slide['title'] }}</div>
-            @if($slide['subtitle'])
-              <div class="hs-mobile-subtitle">
-                <svg style="width:11px;height:11px" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                </svg>
-                {{ $slide['subtitle'] }}
-              </div>
-            @endif
           </div>
         </a>
       @endforeach

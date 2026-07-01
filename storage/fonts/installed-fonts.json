@@ -1,0 +1,9 @@
+{
+    "poppins": {
+        "normal": "C:\\xampp\\htdocs\\ticketin-laravel\\storage\\fonts\/poppins_normal_7b5c312ecc595f96ef5af2c41a1db2a1",
+        "600": "C:\\xampp\\htdocs\\ticketin-laravel\\storage\\fonts\/poppins_600_b0bf32db2852f1bc6353156a482b957a",
+        "bold": "C:\\xampp\\htdocs\\ticketin-laravel\\storage\\fonts\/poppins_bold_4daac9c7b3c7628a3c499c61c225b56a",
+        "800": "C:\\xampp\\htdocs\\ticketin-laravel\\storage\\fonts\/poppins_800_4daac9c7b3c7628a3c499c61c225b56a",
+        "900": "poppins_900_4daac9c7b3c7628a3c499c61c225b56a"
+    }
+}

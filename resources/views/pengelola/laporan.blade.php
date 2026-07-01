@@ -101,6 +101,7 @@
           <tr class="bg-navy-deep text-white">
             <th class="px-4 py-3 text-left font-semibold text-xs">Kode Order</th>
             <th class="px-4 py-3 text-left font-semibold text-xs">Pembeli</th>
+            <th class="px-4 py-3 text-left font-semibold text-xs">Nomor Pemesan</th>
             <th class="px-4 py-3 text-left font-semibold text-xs">Event</th>
             <th class="px-4 py-3 text-left font-semibold text-xs">Tiket</th>
             <th class="px-4 py-3 text-right font-semibold text-xs">Harga Tiket</th>
@@ -119,6 +120,7 @@
               <p class="font-semibold text-gray-800 text-xs">{{ $order->user->nama_lengkap ?? '-' }}</p>
               <p class="text-gray-400 text-xs">{{ $order->user->email ?? '-' }}</p>
             </td>
+            <td class="px-4 py-3 text-xs text-gray-600">{{ $order->user->no_hp ? '+62'.$order->user->no_hp : '-' }}</td>
             <td class="px-4 py-3 text-xs text-gray-700 max-w-[180px]">
               <p class="font-semibold truncate">{{ $order->event->judul ?? '-' }}</p>
               <p class="text-gray-400">{{ $order->event->tanggal_waktu?->format('d M Y') }}</p>

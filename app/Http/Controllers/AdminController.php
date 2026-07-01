@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\EoApplication;
+use App\Models\EoWithdrawal;
 use App\Models\HeroSlider;
 use App\Models\Event;
 use App\Models\Order;
@@ -18,13 +19,14 @@ class AdminController extends Controller
     public function dashboard(): View
     {
         $stats = [
-            'total_user'     => User::where('role','user')->count(),
-            'total_eo'       => User::where('role','pengelola')->count(),
-            'total_event'    => Event::count(),
-            'total_pesanan'  => Order::count(),
-            'total_pendapatan' => Order::where('status','paid')->sum('total_harga'),
-            'pending_eo'     => EoApplication::where('status','pending')->count(),
-            'pending_event'  => Event::where('status','pending_review')->count(),
+            'total_user'        => User::where('role','user')->count(),
+            'total_eo'          => User::where('role','pengelola')->count(),
+            'total_event'       => Event::count(),
+            'total_pesanan'     => Order::count(),
+            'total_pendapatan'  => Order::where('status','paid')->sum('total_harga'),
+            'pending_eo'        => EoApplication::where('status','pending')->count(),
+            'pending_event'     => Event::where('status','pending_review')->count(),
+            'pending_withdrawal'=> EoWithdrawal::where('status','pending')->count(),
         ];
 
         // Grafik pendapatan 6 bulan
@@ -208,6 +210,50 @@ class AdminController extends Controller
         return back()->with('success', 'Pengajuan '.$app->user->nama_lengkap.' berhasil ditolak.');
     }
 
+    public function penarikan(Request $request): View
+    {
+        $query = EoWithdrawal::with(['pengelola', 'processedBy']);
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $withdrawals = $query->latest()->paginate(20);
+        return view('admin.penarikan', compact('withdrawals'));
+    }
+
+    public function approveWithdrawal(EoWithdrawal $withdrawal): RedirectResponse
+    {
+        if ($withdrawal->status !== 'pending') {
+            return back()->with('error', 'Penarikan ini sudah tidak dapat diproses lagi.');
+        }
+
+        $withdrawal->update([
+            'status'       => 'processed',
+            'processed_at' => now(),
+            'processed_by' => Auth::id(),
+        ]);
+
+        return back()->with('success', 'Penarikan berhasil disetujui.');
+    }
+
+    public function rejectWithdrawal(Request $request, EoWithdrawal $withdrawal): RedirectResponse
+    {
+        $request->validate(['catatan_admin' => ['nullable','string','max:500']]);
+
+        if ($withdrawal->status !== 'pending') {
+            return back()->with('error', 'Penarikan ini sudah tidak dapat ditolak lagi.');
+        }
+
+        $withdrawal->update([
+            'status'       => 'rejected',
+            'catatan'      => $request->catatan_admin,
+            'processed_at' => now(),
+            'processed_by' => Auth::id(),
+        ]);
+
+        return back()->with('success', 'Penarikan berhasil ditolak.');
+    }
+
     // ── Semua Pesanan ─────────────────────────────────────────────
     public function pesanan(Request $request): View
     {
@@ -229,7 +275,7 @@ class AdminController extends Controller
     public function updateStatusPesanan(Request $request, Order $order): RedirectResponse
     {
         $request->validate(['status' => ['required','in:pending,paid,cancelled']]);
-        $order->update(['status' => $request->status]);
+        $order->updateStatusWithStock($request->status);
         return back()->with('success', 'Status pesanan diperbarui.');
     }
 }

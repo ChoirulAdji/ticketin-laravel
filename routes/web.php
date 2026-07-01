@@ -41,6 +41,7 @@ Route::middleware('auth')->prefix('profile')->name('profile.')->group(function (
     Route::put('/password', [ProfileController::class, 'updatePassword'])->name('password');
     Route::post('/pesanan/{order}/batalkan', [ProfileController::class, 'batalkanPesanan'])->name('batalkan');
     Route::post('/pesanan/{order}/cek-bayar', [ProfileController::class, 'cekPembayaran'])->name('cek-bayar');
+    Route::get('/pesanan/{order}/download-pdf', [ProfileController::class, 'downloadTicketPDF'])->name('download-pdf');
 });
 
 // ── Daftar EO (user biasa yang ingin jadi EO) ─────────────────────
@@ -77,7 +78,14 @@ Route::middleware('auth')->group(function () {
             return response()->json(['ok' => false, 'error' => 'Order tidak ditemukan'], 404);
         }
         if ($order->status === 'pending') {
-            $order->update(['status' => 'paid']);
+            try {
+                $order->updateStatusWithStock('paid');
+            } catch (\Illuminate\Validation\ValidationException $e) {
+                return response()->json([
+                    'ok' => false,
+                    'error' => $e->errors()['stok'][0] ?? 'Stok tiket tidak mencukupi',
+                ], 422);
+            }
         }
         return response()->json(['ok' => true, 'status' => $order->status]);
     })->name('checkout.konfirmasi');
@@ -93,6 +101,9 @@ Route::middleware(['auth', \App\Http\Middleware\PengelolaMiddleware::class])
         Route::get('/event/{event}/edit', [PengelolaController::class, 'edit'])->name('event.edit');
         Route::put('/event/{event}', [PengelolaController::class, 'update'])->name('event.update');
         Route::delete('/event/{event}', [PengelolaController::class, 'destroy'])->name('event.destroy');
+        Route::get('/penarikan', [PengelolaController::class, 'penarikan'])->name('penarikan');
+        Route::post('/penarikan', [PengelolaController::class, 'ajukanPenarikan'])->name('penarikan.store');
+        Route::put('/rekening', [PengelolaController::class, 'updateRekening'])->name('rekening.update');
         // Laporan EO
         Route::get('/laporan', [LaporanController::class, 'eoIndex'])->name('laporan');
         Route::get('/laporan/export', [LaporanController::class, 'eoExport'])->name('laporan.export');
@@ -137,6 +148,11 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])
         Route::get('/pengajuan-eo', [AdminController::class, 'pengajuanEo'])->name('pengajuan-eo');
         Route::post('/pengajuan-eo/{app}/approve', [AdminController::class, 'approveEo'])->name('pengajuan-eo.approve');
         Route::post('/pengajuan-eo/{app}/reject', [AdminController::class, 'rejectEo'])->name('pengajuan-eo.reject');
+
+        // Penarikan EO
+        Route::get('/penarikan', [AdminController::class, 'penarikan'])->name('penarikan');
+        Route::post('/penarikan/{withdrawal}/approve', [AdminController::class, 'approveWithdrawal'])->name('penarikan.approve');
+        Route::post('/penarikan/{withdrawal}/reject', [AdminController::class, 'rejectWithdrawal'])->name('penarikan.reject');
 
         // Pesanan
         Route::get('/pesanan', [AdminController::class, 'pesanan'])->name('pesanan');

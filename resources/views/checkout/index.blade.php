@@ -75,8 +75,53 @@
             </div>
             <div class="mt-4">
               <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">Catatan (opsional)</label>
-              <textarea name="catatan" rows="2" placeholder="Kebutuhan khusus, dsb..." class="form-input px-4 py-2.5 text-sm resize-none"></textarea>
+              <textarea name="catatan" rows="2" placeholder="Kebutuhan khusus, dsb..." class="form-input px-4 py-2.5 text-sm resize-none">{{ old('catatan') }}</textarea>
             </div>
+
+            <div class="mt-6 bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+              <h2 class="font-bold text-navy-deep text-base mb-4 flex items-center gap-2">
+                <span class="w-7 h-7 bg-navy-mid rounded-lg flex items-center justify-center text-white text-xs font-bold">2</span>
+                Data Pemesan per Tiket
+              </h2>
+              <p class="text-sm text-gray-500 mb-4">Data Pemesan 1 adalah pemesan utama. Isi data pemesan untuk tiket tambahan mulai dari nomor 2.</p>
+
+              @php $ticketNumber = 1; @endphp
+              <div class="space-y-4">
+                @foreach($summary as $item)
+                  @for($unit = 1; $unit <= $item['qty']; $unit++)
+                    @if($ticketNumber > 1)
+                    <div class="p-4 border border-gray-100 rounded-2xl bg-gray-50">
+                      <div class="flex items-center justify-between mb-4 gap-3">
+                        <div>
+                          <p class="text-sm font-bold text-navy-deep">Data Pemesan {{ $ticketNumber }}</p>
+                          <p class="text-xs text-gray-400">{{ $item['category']->nama_kategori }} · Rp {{ number_format($item['category']->harga,0,',','.') }}</p>
+                        </div>
+                        <span class="text-xs text-gray-500">Tiket {{ $unit }} dari {{ $item['qty'] }}</span>
+                      </div>
+                      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                          <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">Nama Pemesan *</label>
+                          <input type="text" name="pemesan[{{ $item['category']->id }}][{{ $unit }}][name]" value="{{ old('pemesan.'.$item['category']->id.'.'.$unit.'.name') }}" placeholder="Nama lengkap" class="form-input px-4 py-2.5 text-sm" required />
+                          @error('pemesan.'.$item['category']->id.'.'.$unit.'.name')
+                            <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
+                          @enderror
+                        </div>
+                        <div>
+                          <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">No. HP Pemesan</label>
+                          <input type="tel" name="pemesan[{{ $item['category']->id }}][{{ $unit }}][phone]" value="{{ old('pemesan.'.$item['category']->id.'.'.$unit.'.phone') }}" placeholder="812xxxxxxxx" class="form-input px-4 py-2.5 text-sm" />
+                          @error('pemesan.'.$item['category']->id.'.'.$unit.'.phone')
+                            <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
+                          @enderror
+                        </div>
+                      </div>
+                    </div>
+                    @endif
+                    @php $ticketNumber++; @endphp
+                  @endfor
+                @endforeach
+              </div>
+            </div>
+
           </div>
           <button type="button" onclick="goStep(2)" class="mt-6 w-full bg-navy-mid text-white font-bold py-3.5 rounded-xl hover:bg-navy-deep transition-colors text-sm shadow-md">
             Pilih Metode Pembayaran →

@@ -99,6 +99,11 @@
           <span class="ml-auto text-xs bg-red-500 text-white font-bold px-1.5 py-0.5 rounded-full">{{ $pendingEo }}</span>
         @endif
       </a>
+
+      <a href="{{ route('admin.penarikan') }}" class="sidebar-link {{ request()->routeIs('admin.penarikan*') ? 'active' : '' }}">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12.79A9 9 0 1112.21 3m8.58 9.79H3"/></svg>
+        Penarikan EO
+      </a>
     </nav>
 
     {{-- Bottom --}}

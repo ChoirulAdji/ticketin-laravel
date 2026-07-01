@@ -42,6 +42,7 @@
       ['Total EO',$stats['total_eo'],'text-purple-700','bg-purple-50',route('admin.users').'?role=pengelola'],
       ['Total Event',$stats['total_event'],'text-blue-700','bg-blue-50',route('admin.events')],
       ['Total Pesanan',$stats['total_pesanan'],'text-green-700','bg-green-50',route('admin.pesanan')],
+      ['Penarikan Pending',$stats['pending_withdrawal'],'text-amber-700','bg-amber-50',route('admin.penarikan')],
     ] as [$label,$val,$color,$bg,$link])
     <a href="{{ $link }}" class="stat-card block">
       <div class="flex items-center justify-between mb-3">

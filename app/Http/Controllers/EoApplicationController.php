@@ -48,7 +48,8 @@ class EoApplicationController extends Controller
             'bank'              => ['required', 'string'],
             'nomor_rekening'    => ['required', 'string', 'max:30'],
             'nama_rekening'     => ['required', 'string', 'max:255'],
-            'dokumen_legalitas' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
+            'npwp'              => ['required', 'string', 'max:30'],
+            'dokumen_legalitas' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
         ]);
 
         $dokumenPath = null;

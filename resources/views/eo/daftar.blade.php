@@ -127,14 +127,14 @@
           </h3>
           <div class="space-y-4">
             <div>
-              <label class="form-label">NPWP <span class="text-gray-400 font-normal">(opsional)</span></label>
+              <label class="form-label">NPWP</label>
               <input type="text" name="npwp" value="{{ old('npwp') }}"
-                     placeholder="00.000.000.0-000.000" class="form-input px-4 py-3 text-sm">
-              <p class="text-gray-400 text-xs mt-1">Wajib jika pencairan dana lebih dari Rp 5 juta per transaksi.</p>
+                     placeholder="00.000.000.0-000.000" class="form-input px-4 py-3 text-sm" required>
+              <p class="text-gray-400 text-xs mt-1">NPWP diperlukan untuk proses verifikasi dan pencairan dana.</p>
             </div>
             <div>
-              <label class="form-label">Upload Dokumen Legalitas <span class="text-gray-400 font-normal">(opsional)</span></label>
-              <input type="file" name="dokumen_legalitas" accept=".pdf,.jpg,.jpeg,.png"
+              <label class="form-label">Upload Dokumen Legalitas</label>
+              <input type="file" name="dokumen_legalitas" accept=".pdf,.jpg,.jpeg,.png" required
                      class="form-input px-4 py-3 text-sm text-gray-500">
               <p class="text-gray-400 text-xs mt-1">KTP, Akta Pendirian, atau SIUP. Format PDF/JPG/PNG, maks 5MB.</p>
             </div>

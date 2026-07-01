@@ -53,6 +53,86 @@
           <input type="tel" name="no_hp" value="{{ old('no_hp',$user->no_hp) }}" placeholder="812xxxxxxxx" class="form-input flex-1 px-4 py-3 text-sm" style="border-radius:0 12px 12px 0">
         </div>
       </div>
+
+      @if($eoApplication)
+      <div class="bg-slate-50 rounded-2xl border border-slate-200 p-5">
+        <h3 class="font-bold text-navy-deep text-base mb-4">Data EO / Pengelola</h3>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div>
+            <label class="form-label">Nama Organisasi / EO</label>
+            <input type="text" name="nama_organisasi" value="{{ old('nama_organisasi', $eoApplication->nama_organisasi) }}" class="form-input px-4 py-3 text-sm" required>
+          </div>
+          <div>
+            <label class="form-label">Jenis Entitas</label>
+            <select name="jenis_entitas" class="form-input px-4 py-3 text-sm" required>
+              @foreach(['perorangan'=>'Perorangan','cv'=>'CV / Firma','pt'=>'PT','yayasan'=>'Yayasan / NGO','komunitas'=>'Komunitas'] as $v=>$l)
+              <option value="{{ $v }}" {{ old('jenis_entitas', $eoApplication->jenis_entitas) === $v ? 'selected' : '' }}>{{ $l }}</option>
+              @endforeach
+            </select>
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <label class="form-label">Skala Event</label>
+          <select name="skala_event" class="form-input px-4 py-3 text-sm" required>
+            @foreach(['kecil'=>'Kecil (<100 orang)','menengah'=>'Menengah (100-1K)','besar'=>'Besar (>1.000)'] as $v=>$l)
+            <option value="{{ $v }}" {{ old('skala_event', $eoApplication->skala_event) === $v ? 'selected' : '' }}>{{ $l }}</option>
+            @endforeach
+          </select>
+        </div>
+
+        <div class="mt-4">
+          <label class="form-label">Alamat Organisasi</label>
+          <input type="text" name="alamat_organisasi" value="{{ old('alamat_organisasi', $eoApplication->alamat_organisasi) }}" class="form-input px-4 py-3 text-sm" required>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
+          <div>
+            <label class="form-label">No. HP Bisnis</label>
+            <input type="tel" name="no_hp_bisnis" value="{{ old('no_hp_bisnis', $eoApplication->no_hp_bisnis) }}" class="form-input px-4 py-3 text-sm" required>
+          </div>
+          <div>
+            <label class="form-label">Website / Media Sosial</label>
+            <input type="text" name="website" value="{{ old('website', $eoApplication->website) }}" class="form-input px-4 py-3 text-sm">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
+          <div>
+            <label class="form-label">Bank Rekening</label>
+            <select name="bank" class="form-input px-4 py-3 text-sm" required>
+              @foreach(['bca'=>'BCA','bni'=>'BNI','bri'=>'BRI','mandiri'=>'Mandiri','bsi'=>'BSI','cimb'=>'CIMB Niaga','lain'=>'Bank Lainnya'] as $v=>$l)
+              <option value="{{ $v }}" {{ old('bank', $eoApplication->bank) === $v ? 'selected' : '' }}>{{ $l }}</option>
+              @endforeach
+            </select>
+          </div>
+          <div>
+            <label class="form-label">No. Rekening</label>
+            <input type="text" name="nomor_rekening" value="{{ old('nomor_rekening', $eoApplication->nomor_rekening) }}" class="form-input px-4 py-3 text-sm" required>
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <label class="form-label">Nama Pemilik Rekening</label>
+          <input type="text" name="nama_rekening" value="{{ old('nama_rekening', $eoApplication->nama_rekening) }}" class="form-input px-4 py-3 text-sm" required>
+        </div>
+
+        <div class="mt-4">
+          <label class="form-label">NPWP <span class="text-gray-400">(opsional)</span></label>
+          <input type="text" name="npwp" value="{{ old('npwp', $eoApplication->npwp) }}" class="form-input px-4 py-3 text-sm">
+        </div>
+
+        <div class="mt-4">
+          <label class="form-label">Dokumen Legalitas <span class="text-gray-400">(opsional)</span></label>
+          <input type="file" name="dokumen_legalitas" accept=".pdf,.jpg,.jpeg,.png" class="form-input px-4 py-3 text-sm text-gray-500">
+          @if($eoApplication->dokumen_url)
+          <p class="text-xs text-gray-500 mt-2">Dokumen saat ini: <a href="{{ $eoApplication->dokumen_url }}" target="_blank" class="text-blue-600 underline">Lihat</a></p>
+          @endif
+        </div>
+      </div>
+      @endif
+
       <div>
         <label class="form-label">Role Akun</label>
         <div class="form-input px-4 py-3 text-sm text-gray-400 cursor-not-allowed bg-gray-50">

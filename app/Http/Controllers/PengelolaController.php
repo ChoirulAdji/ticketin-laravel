@@ -5,12 +5,15 @@ namespace App\Http\Controllers;
 use App\Models\Event;
 use App\Models\EventFaq;
 use App\Models\EventLineup;
+use App\Models\EoWithdrawal;
 use App\Models\Order;
 use App\Models\TicketCategory;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 use App\Models\EventGallery;
 use Illuminate\View\View;
 
@@ -28,7 +31,7 @@ class PengelolaController extends Controller
 
         $totalPendapatan = Order::whereHas('event', fn($q) => $q->where('pengelola_id', $user->id))
                                 ->where('status', 'paid')
-                                ->sum('total_harga');
+                                ->sum('pendapatan_eo');
 
         $totalPesanan = Order::whereHas('event', fn($q) => $q->where('pengelola_id', $user->id))
                              ->count();
@@ -198,7 +201,7 @@ class PengelolaController extends Controller
             'paid'       => Order::where('event_id', $event->id)->where('status','paid')->count(),
             'pending'    => Order::where('event_id', $event->id)->where('status','pending')->count(),
             'cancelled'  => Order::where('event_id', $event->id)->where('status','cancelled')->count(),
-            'pendapatan' => Order::where('event_id', $event->id)->where('status','paid')->sum('total_harga'),
+            'pendapatan' => Order::where('event_id', $event->id)->where('status','paid')->sum('pendapatan_eo'),
         ];
 
         return view('pengelola.pesanan', compact('event', 'orders', 'stats'));
@@ -207,13 +210,117 @@ class PengelolaController extends Controller
     // ── Update Status Pesanan ──────────────────────────────────────
     public function updateStatusPesanan(Request $request, Order $order): RedirectResponse
     {
+        $order->loadMissing('event');
         $this->authorizeEvent($order->event);
         $request->validate(['status' => ['required', 'in:pending,paid,cancelled']]);
-        $order->update(['status' => $request->status]);
+        $order->updateStatusWithStock($request->status);
         return back()->with('success', 'Status pesanan diperbarui.');
     }
 
+    public function penarikan(): View
+    {
+        $user = Auth::user();
+        $application = $user->eoApplication;
+        $summary = $this->withdrawalSummary($user->id);
+        $withdrawals = EoWithdrawal::where('pengelola_id', $user->id)
+            ->latest()
+            ->paginate(10);
+        $banks = $this->bankOptions();
+
+        return view('pengelola.penarikan', compact('application', 'summary', 'withdrawals', 'banks'));
+    }
+
+    public function updateRekening(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'bank' => ['required', 'string', 'max:50'],
+            'nomor_rekening' => ['required', 'string', 'max:50', 'regex:/^[0-9]+$/'],
+            'nama_rekening' => ['required', 'string', 'max:255'],
+        ]);
+
+        $application = Auth::user()->eoApplication;
+        if (! $application) {
+            return back()->with('error', 'Data EO belum ditemukan. Lengkapi pengajuan EO terlebih dahulu.');
+        }
+
+        $application->update($data);
+
+        return back()->with('success', 'Rekening tujuan berhasil diperbarui.');
+    }
+
+    public function ajukanPenarikan(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'amount' => ['required', 'numeric', 'min:10000'],
+        ]);
+
+        $user = Auth::user();
+        $application = $user->eoApplication;
+
+        if (! $application || blank($application->bank) || blank($application->nomor_rekening) || blank($application->nama_rekening)) {
+            return back()->with('error', 'Lengkapi rekening tujuan sebelum mengajukan penarikan.');
+        }
+
+        DB::transaction(function () use ($request, $user, $application) {
+            $summary = $this->withdrawalSummary($user->id);
+            $amount = (float) $request->amount;
+
+            if ($amount > $summary['saldo_tersedia']) {
+                throw ValidationException::withMessages([
+                    'amount' => 'Nominal penarikan melebihi saldo tersedia.',
+                ]);
+            }
+
+            EoWithdrawal::create([
+                'pengelola_id' => $user->id,
+                'amount' => $amount,
+                'bank' => $application->bank,
+                'nomor_rekening' => $application->nomor_rekening,
+                'nama_rekening' => $application->nama_rekening,
+                'status' => 'pending',
+            ]);
+        });
+
+        return back()->with('success', 'Pengajuan penarikan berhasil dikirim dan menunggu diproses admin.');
+    }
+
     // ── Private Helpers ────────────────────────────────────────────
+    private function withdrawalSummary(int $pengelolaId): array
+    {
+        $totalPendapatan = Order::whereHas('event', fn($q) => $q->where('pengelola_id', $pengelolaId))
+            ->where('status', 'paid')
+            ->sum('pendapatan_eo');
+
+        $pending = EoWithdrawal::where('pengelola_id', $pengelolaId)
+            ->where('status', 'pending')
+            ->sum('amount');
+
+        $processed = EoWithdrawal::where('pengelola_id', $pengelolaId)
+            ->where('status', 'processed')
+            ->sum('amount');
+
+        return [
+            'total_pendapatan' => $totalPendapatan,
+            'pending' => $pending,
+            'processed' => $processed,
+            'saldo_tersedia' => max(0, $totalPendapatan - $pending - $processed),
+        ];
+    }
+
+    private function bankOptions(): array
+    {
+        return [
+            'bca' => 'BCA',
+            'bni' => 'BNI',
+            'bri' => 'BRI',
+            'mandiri' => 'Mandiri',
+            'cimb' => 'CIMB Niaga',
+            'permata' => 'Permata',
+            'danamon' => 'Danamon',
+            'btn' => 'BTN',
+        ];
+    }
+
     private function validateEvent(Request $request, ?int $ignoreId = null): array
     {
         return $request->validate([

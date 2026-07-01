@@ -138,7 +138,7 @@
         </div>
       </div>
       <p class="text-2xl font-extrabold text-navy-deep">Rp {{ number_format($totalPendapatan/1000000, 1) }}jt</p>
-      <p class="text-gray-400 text-xs mt-1">Total Pendapatan</p>
+      <p class="text-gray-400 text-xs mt-1">Pendapatan Bersih EO</p>
     </div>
 
     <div class="stat-card">
@@ -166,7 +166,7 @@
         </div>
         <select id="chartFilter" onchange="updateChart()" class="text-xs border border-gray-200 rounded-lg px-3 py-1.5 text-gray-600 outline-none focus:border-navy-mid">
           <option value="tiket">Jumlah Tiket</option>
-          <option value="pendapatan">Pendapatan</option>
+          <option value="pendapatan">Pendapatan Bersih</option>
         </select>
       </div>
 
@@ -176,7 +176,7 @@
       return [
       'judul' => \Illuminate\Support\Str::limit($event->judul, 20),
       'tiket' => $paid->sum('total_qty'),
-      'pendapatan' => $paid->sum('total_harga'),
+      'pendapatan' => $paid->sum('pendapatan_eo'),
       ];
       })->sortByDesc('tiket')->take(6)->values();
       $maxTiket = $chartData->max('tiket') ?: 1;
@@ -214,6 +214,7 @@
         <h2 class="font-bold text-navy-deep"> Notifikasi</h2>
         @php
         $newOrders = \App\Models\Order::whereHas('event', fn($q) => $q->where('pengelola_id', auth()->id()))
+        ->with(['user', 'event'])
         ->where('created_at', '>=', now()->subDay())
         ->latest()->take(5)->get();
         @endphp
@@ -308,7 +309,7 @@
       ->where('created_at', '>=', now()->subMonths(6))
       ->get()
       ->groupBy(fn($o) => $o->created_at->format('Y-m'))
-      ->map(fn($g) => ['bulan' => $g->first()->created_at->format('M Y'), 'total' => $g->sum('total_harga'), 'tiket' => $g->sum('total_qty')])
+      ->map(fn($g) => ['bulan' => $g->first()->created_at->format('M Y'), 'total' => $g->sum('pendapatan_eo'), 'tiket' => $g->sum('total_qty')])
       ->sortKeys()
       ->values();
       $maxRekap = $rekapBulan->max('total') ?: 1;
@@ -352,7 +353,7 @@
         $soldQty = \App\Models\Order::where('event_id',$event->id)->where('status','paid')->sum('total_qty');
         $totalKuota = $event->ticketCategories->sum('kuota');
         $pct = $totalKuota > 0 ? min(100, round(($soldQty/$totalKuota)*100)) : 0;
-        $pendapatan = \App\Models\Order::where('event_id',$event->id)->where('status','paid')->sum('total_harga');
+        $pendapatan = \App\Models\Order::where('event_id',$event->id)->where('status','paid')->sum('pendapatan_eo');
         @endphp
         <div class="bg-gray-50 border border-gray-100 rounded-xl p-4">
           <div class="flex items-center justify-between mb-2">
@@ -446,7 +447,7 @@
               <p class="text-gray-400 text-xs">{{ \Illuminate\Support\Str::limit($order->ticket_summary,20) }}</p>
             </td>
             <td class="py-3 pr-4">
-              <p class="font-bold text-navy-deep text-xs">Rp {{ number_format($order->total_harga,0,',','.') }}</p>
+              <p class="font-bold text-navy-deep text-xs">Rp {{ number_format($order->pendapatan_eo,0,',','.') }}</p>
               <p class="text-gray-400 text-xs">{{ $order->metode_bayar }}</p>
             </td>
             <td class="py-3 pr-4">
@@ -591,4 +592,3 @@
   }
 </script>
 @endpush
-

@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" role="img" aria-label="TicketIn">
+  <rect width="36" height="36" rx="8" fill="#F5C400"/>
+  <path d="M10 11.5h16c1.1 0 2 .9 2 2v3.1c-1.37.36-2.38 1.58-2.38 3.04s1.01 2.68 2.38 3.04v3.82c0 1.1-.9 2-2 2H10c-1.1 0-2-.9-2-2v-3.82c1.37-.36 2.38-1.58 2.38-3.04S9.37 16.96 8 16.6v-3.1c0-1.1.9-2 2-2Z" fill="none" stroke="#001840" stroke-width="2.4" stroke-linejoin="round"/>
+  <path d="M19.6 11.7v3.1m0 3.2v3.1m0 3.2v3.1" stroke="#001840" stroke-width="2.4" stroke-linecap="round"/>
+</svg>

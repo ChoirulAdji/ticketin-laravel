@@ -56,7 +56,7 @@
   .confirm-modal { position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:110; display:flex; align-items:center; justify-content:center; padding:20px; opacity:0; pointer-events:none; transition:opacity .3s; }
   .confirm-modal.show { opacity:1; pointer-events:all; }
   @media print {
-    @page { size: A4 portrait; margin: 12mm; }
+    @page { size: A4 landscape; margin: 10mm; }
     html,
     body { width:100%!important; height:auto!important; min-height:0!important; margin:0!important; padding:0!important; overflow:visible!important; background:white!important; }
     body > header,
@@ -64,16 +64,19 @@
     main > :not(#tiket-modal) { display:none!important; }
     main { display:block!important; margin:0!important; padding:0!important; }
     #tiket-modal { position:static!important; display:block!important; width:100%!important; min-height:0!important; background:white!important; padding:0!important; margin:0!important; opacity:1!important; pointer-events:none!important; }
-    #tiket-modal .modal-box { position:static!important; transform:none!important; width:100%!important; max-width:720px!important; max-height:none!important; overflow:visible!important; margin:0 auto!important; box-shadow:none!important; border-radius:0!important; background:white!important; }
+    #tiket-modal .modal-box { position:static!important; transform:none!important; width:100%!important; max-width:none!important; max-height:none!important; overflow:visible!important; margin:0 auto!important; box-shadow:none!important; border-radius:0!important; background:white!important; }
     #tiket-modal .modal-box > .flex,
     #tiket-modal .modal-box > .p-5 > :not(.print-area),
     #tiket-modal .print-hide { display:none!important; }
     #tiket-modal .modal-box > .p-5 { padding:0!important; }
     #tiket-modal .print-area { page-break-inside:avoid!important; break-inside:avoid!important; margin:0!important; box-shadow:none!important; border-color:#dbe3ef!important; -webkit-print-color-adjust:exact!important; print-color-adjust:exact!important; }
-    #tiket-modal .pdf-header { padding:24px 28px!important; }
-    #tiket-modal .pdf-body { padding:22px 28px 26px!important; }
-    #tiket-modal .pdf-ticket-grid { grid-template-columns:repeat(3,1fr)!important; gap:12px!important; }
-    #tiket-modal .pdf-ticket-card { min-height:142px!important; }
+    #tiket-modal .pdf-header { padding:20px 22px!important; }
+    #tiket-modal .pdf-body { padding:18px 22px 24px!important; }
+    #tiket-modal .pdf-ticket-grid { grid-template-columns:repeat(4,1fr)!important; gap:10px!important; }
+    #tiket-modal .pdf-ticket-card { min-height:150px!important; }
+    #tiket-modal .pdf-ticket-qr { width:68px!important; height:68px!important; }
+    #tiket-modal .pdf-ticket-qr canvas,
+    #tiket-modal .pdf-ticket-qr img { width:68px!important; height:68px!important; }
   }
 </style>
 @endpush
@@ -157,12 +160,17 @@
           $tickets = [];
           $ticketIndex = 0;
           foreach ($order->items as $item) {
+              $passengers = $item->passenger_data ?? [];
               for ($unit = 1; $unit <= $item->qty; $unit++) {
                   $ticketIndex++;
+                  $ticketCode = $order->order_code . '-' . str_pad($ticketIndex, 3, '0', STR_PAD_LEFT);
+                  $passenger = $passengers[$unit] ?? null;
                   $tickets[] = [
-                      'code' => $order->order_code . '-' . str_pad($ticketIndex, 3, '0', STR_PAD_LEFT),
+                      'code' => $ticketCode,
                       'category' => $item->ticketCategory->nama_kategori ?? 'Tiket',
                       'price' => 'Rp ' . number_format($item->harga_satuan, 0, ',', '.'),
+                      'passenger_name' => $passenger['name'] ?? null,
+                      'passenger_phone' => $passenger['phone'] ?? null,
                   ];
               }
           }
@@ -224,9 +232,9 @@
 
           {{-- Tombol aksi tiket --}}
           <div class="flex gap-2 mt-3">
-            <button onclick="printTiket({{ $order->id }})" class="w-full bg-white border border-gray-200 text-gray-700 font-semibold py-2.5 rounded-xl hover:bg-gray-50 transition-all text-sm flex items-center justify-center gap-2">
-              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
-              Print
+            <button onclick="downloadTiket({{ $order->id }})" class="w-full bg-blue-600 text-white font-semibold py-2.5 rounded-xl hover:bg-blue-700 transition-all text-sm flex items-center justify-center gap-2">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+              Download PDF
             </button>
           </div>
 
@@ -463,9 +471,9 @@
         Tunjukkan QR Code ini kepada petugas di pintu masuk event.
       </div>
       <div class="print-hide flex gap-3 mt-4">
-        <button onclick="window.print()" class="flex-1 bg-gray-100 text-gray-700 font-semibold py-3 rounded-xl hover:bg-gray-200 transition-all text-sm flex items-center justify-center gap-2">
-          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
-          Print
+        <button onclick="downloadTiketModal()" class="flex-1 bg-blue-600 text-white font-semibold py-3 rounded-xl hover:bg-blue-700 transition-all text-sm flex items-center justify-center gap-2">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+          Download PDF
         </button>
         <button id="share-btn" class="flex-1 bg-gold text-navy-deep font-bold py-3 rounded-xl hover:bg-gold-light transition-all text-sm flex items-center justify-center gap-2">
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
@@ -534,56 +542,66 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   function lihatTiket(id) {
-    const d = document.getElementById('order-data-'+id).dataset;
-    const tickets = JSON.parse(d.tickets || '[]');
-    document.getElementById('m-judul').textContent   = d.judul;
-    document.getElementById('m-tanggal').textContent = d.tanggal;
-    document.getElementById('m-waktu').textContent   = d.waktu + ' WIB';
-    document.getElementById('m-lokasi').textContent  = d.lokasi;
-    document.getElementById('m-qty').textContent     = d.qty + ' Tiket';
-    document.getElementById('m-nama').textContent    = d.nama;
-    document.getElementById('m-kode').textContent    = d.kode;
-    document.getElementById('m-venue').textContent   = d.venue;
-    document.getElementById('m-total').textContent   = d.total;
-    document.getElementById('m-summary-wrap').innerHTML = (d.summary || '').split(',').filter(Boolean).map(s =>
-      '<span class="pdf-chip">'+escapeHtml(s.trim())+'</span>'
-    ).join('');
-    document.getElementById('share-btn').onclick = () => bagikanTiket(d.kode, d.judul);
-    // Generate QR code untuk tiap tiket dalam satu order.
-    const mqrEl = document.getElementById('modal-qr-box');
-    if (mqrEl) {
-      mqrEl.innerHTML = '';
-      tickets.forEach(ticket => {
-        const wrap = document.createElement('div');
-        wrap.className = 'pdf-ticket-card';
-        const qr = document.createElement('div');
-        qr.className = 'pdf-ticket-qr';
-        const code = document.createElement('p');
-        code.className = 'pdf-ticket-code';
-        code.textContent = ticket.code;
-        const category = document.createElement('p');
-        category.className = 'pdf-ticket-category';
-        category.textContent = ticket.category;
-        wrap.appendChild(qr);
-        wrap.appendChild(code);
-        wrap.appendChild(category);
-        mqrEl.appendChild(wrap);
+    return new Promise((resolve) => {
+      currentOrderId = id;
+      const d = document.getElementById('order-data-'+id).dataset;
+      const tickets = JSON.parse(d.tickets || '[]');
+      document.getElementById('m-judul').textContent   = d.judul;
+      document.getElementById('m-tanggal').textContent = d.tanggal;
+      document.getElementById('m-waktu').textContent   = d.waktu + ' WIB';
+      document.getElementById('m-lokasi').textContent  = d.lokasi;
+      document.getElementById('m-qty').textContent     = d.qty + ' Tiket';
+      document.getElementById('m-nama').textContent    = d.nama;
+      document.getElementById('m-kode').textContent    = d.kode;
+      document.getElementById('m-venue').textContent   = d.venue;
+      document.getElementById('m-total').textContent   = d.total;
+      document.getElementById('m-summary-wrap').innerHTML = (d.summary || '').split(',').filter(Boolean).map(s =>
+        '<span class="pdf-chip">'+escapeHtml(s.trim())+'</span>'
+      ).join('');
+      document.getElementById('share-btn').onclick = () => bagikanTiket(d.kode, d.judul);
+      // Generate QR code untuk tiap tiket dalam satu order.
+      const mqrEl = document.getElementById('modal-qr-box');
+      if (mqrEl) {
+        mqrEl.innerHTML = '';
+        tickets.forEach(ticket => {
+          const wrap = document.createElement('div');
+          wrap.className = 'pdf-ticket-card';
+          const qr = document.createElement('div');
+          qr.className = 'pdf-ticket-qr';
+          const code = document.createElement('p');
+          code.className = 'pdf-ticket-code';
+          code.textContent = ticket.code;
+          const category = document.createElement('p');
+          category.className = 'pdf-ticket-category';
+          category.textContent = ticket.category;
+          wrap.appendChild(qr);
+          wrap.appendChild(code);
+          wrap.appendChild(category);
+          if (ticket.passenger_name) {
+            const passenger = document.createElement('p');
+            passenger.className = 'pdf-ticket-category';
+            passenger.textContent = ticket.passenger_name;
+            wrap.appendChild(passenger);
+          }
+          mqrEl.appendChild(wrap);
 
-        if (typeof QRCode !== 'undefined') {
-          new QRCode(qr, {
-            text: ticket.code,
-            width: 76,
-            height: 76,
-            colorDark: '#102A71',
-            colorLight: '#ffffff',
-            correctLevel: QRCode.CorrectLevel.M
-          });
-        } else {
-          qr.innerHTML = '<div style="width:76px;height:76px;background:white;color:#102A71;border-radius:8px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:9px;font-weight:800;padding:6px;">'+escapeHtml(ticket.code)+'</div>';
-        }
-      });
-    }
-    document.getElementById('tiket-modal').classList.add('show');
+          if (typeof QRCode !== 'undefined') {
+            new QRCode(qr, {
+              text: ticket.code,
+              width: 76,
+              height: 76,
+              colorDark: '#102A71',
+              colorLight: '#ffffff',
+              correctLevel: QRCode.CorrectLevel.M
+            });
+          } else {
+            qr.innerHTML = '<div style="width:76px;height:76px;background:white;color:#102A71;border-radius:8px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:9px;font-weight:800;padding:6px;">'+escapeHtml(ticket.code)+'</div>';
+          }
+        });
+      }
+      document.getElementById('tiket-modal').classList.add('show');
+      setTimeout(resolve, 600);
+    });
   }
 
   function tutupModal(e) {
@@ -593,9 +611,20 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   function printTiket(id) {
-    lihatTiket(id);
-    setTimeout(() => window.print(), 400);
+    lihatTiket(id).then(() => {
+      window.print();
+    });
   }
+
+  function downloadTiket(id) {
+    window.location.href = '/profile/pesanan/' + id + '/download-pdf';
+  }
+
+  function downloadTiketModal() {
+    downloadTiket(currentOrderId);
+  }
+
+  let currentOrderId = null;
 
   function bagikanTiket(kode, judul) {
     const text = 'Tiket ' + judul + '\nKode: ' + kode + '\nPlatform: TicketIn';

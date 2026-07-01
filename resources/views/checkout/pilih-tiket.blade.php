@@ -75,7 +75,20 @@
   const prices = { @foreach($categories as $cat)'{{ $cat->id }}': {{ $cat->harga }},@endforeach };
   function changeQty(id, d) {
     const inp = document.getElementById('qty-'+id);
-    inp.value = Math.max(0, Math.min(+inp.getAttribute('max'), +inp.value+d));
+    const current = +inp.value;
+    const target = Math.max(0, Math.min(+inp.getAttribute('max'), current + d));
+    const qtyTotal = Object.keys(prices).reduce((sum, key) => sum + +document.getElementById('qty-'+key).value, 0);
+    if (d > 0 && qtyTotal >= 10) {
+      alert('Maksimal 10 tiket per pesanan.');
+      return;
+    }
+
+    if (d > 0 && qtyTotal + 1 > 10) {
+      alert('Maksimal 10 tiket per pesanan.');
+      return;
+    }
+
+    inp.value = target;
     updateTotal();
   }
   function updateTotal() {

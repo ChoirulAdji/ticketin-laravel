@@ -39,6 +39,26 @@ class CheckoutController extends Controller
             return back()->withErrors(['tickets' => 'Pilih minimal 1 tiket.']);
         }
 
+        $totalQty = array_sum(array_map('intval', $cart));
+        if ($totalQty > 10) {
+            return back()->withErrors(['tickets' => 'Maksimal 10 tiket per pesanan.']);
+        }
+
+        foreach ($cart as $categoryId => $qty) {
+            $qty = intval($qty);
+            $category = TicketCategory::where('event_id', $event->id)->find($categoryId);
+
+            if (! $category) {
+                return back()->withErrors(['tickets' => 'Kategori tiket tidak valid.']);
+            }
+
+            if ($qty > $category->kuota) {
+                return back()->withErrors([
+                    'tickets' => 'Stok tiket ' . $category->nama_kategori . ' hanya tersisa ' . $category->kuota . '.',
+                ]);
+            }
+        }
+
         session(["cart.{$event->id}" => $cart]);
 
         return redirect()->route('checkout.show', $event);
@@ -59,7 +79,7 @@ class CheckoutController extends Controller
 
         foreach ($cart as $categoryId => $qty) {
             $qty = intval($qty);
-            $category = TicketCategory::find($categoryId);
+            $category = TicketCategory::where('event_id', $event->id)->find($categoryId);
             if ($category && $qty > 0) {
                 $lineTotal = $category->harga * $qty;
                 $summary[] = [
@@ -70,6 +90,12 @@ class CheckoutController extends Controller
                 $subtotal  += $lineTotal;
                 $totalQty  += $qty;
             }
+        }
+
+        if ($totalQty > 10) {
+            session()->forget("cart.{$event->id}");
+            return redirect()->route('events.pilih-tiket', $event)
+                ->withErrors(['tickets' => 'Maksimal 10 tiket per pesanan.']);
         }
 
         $biayaLayanan = $subtotal * 0.05; // 5% biaya layanan
@@ -84,17 +110,34 @@ class CheckoutController extends Controller
         // Normalize ke lowercase sebelum validasi
         $request->merge(['metode_bayar' => strtolower($request->metode_bayar)]);
 
-        $request->validate([
-            'metode_bayar' => ['required', 'string', 'in:bca,bni,bri,mandiri,gopay,ovo,dana,qris,shopepay'],
-        ]);
-
         $cart = session("cart.{$event->id}", []);
-
         if (empty($cart)) {
             return redirect()->route('events.index');
         }
 
-        DB::transaction(function () use ($request, $event, $cart) {
+        $rules = [
+            'nama' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email'],
+            'no_hp' => ['required', 'string', 'max:20', 'regex:/^[0-9]+$/'],
+            'kota_asal' => ['nullable', 'string', 'max:255'],
+            'catatan' => ['nullable', 'string', 'max:500'],
+            'metode_bayar' => ['required', 'string', 'in:bca,bni,bri,mandiri,gopay,ovo,dana,qris,shopepay'],
+        ];
+
+        $ticketNumber = 1;
+        foreach ($cart as $categoryId => $qty) {
+            for ($unit = 1; $unit <= intval($qty); $unit++) {
+                if ($ticketNumber > 1) {
+                    $rules["pemesan.{$categoryId}.{$unit}.name"] = ['required', 'string', 'max:255'];
+                    $rules["pemesan.{$categoryId}.{$unit}.phone"] = ['nullable', 'string', 'max:20', 'regex:/^[0-9]+$/'];
+                }
+                $ticketNumber++;
+            }
+        }
+
+        $validated = $request->validate($rules);
+
+        DB::transaction(function () use ($event, $cart, $validated) {
             $subtotal     = 0;
             $totalQty     = 0;
             $ticketItems  = [];
@@ -102,13 +145,23 @@ class CheckoutController extends Controller
 
             foreach ($cart as $categoryId => $qty) {
                 $qty      = intval($qty);
-                $category = TicketCategory::find($categoryId);
+                $category = TicketCategory::where('event_id', $event->id)->find($categoryId);
                 if ($category && $qty > 0) {
+                    if ($qty > $category->kuota) {
+                        throw ValidationException::withMessages([
+                            'tickets' => 'Stok tiket ' . $category->nama_kategori . ' hanya tersisa ' . $category->kuota . '.',
+                        ]);
+                    }
+
                     $subtotal    += $category->harga * $qty;
                     $totalQty    += $qty;
                     $ticketItems[] = ['category' => $category, 'qty' => $qty];
                     $summaryParts[] = $qty . 'x ' . $category->nama_kategori;
                 }
+            }
+
+            if ($totalQty > 10) {
+                throw ValidationException::withMessages(['tickets' => 'Maksimal 10 tiket per pesanan.']);
             }
 
             $biayaLayanan  = round($subtotal * 0.05);
@@ -125,16 +178,29 @@ class CheckoutController extends Controller
                 'pendapatan_eo'  => $pendapatanEo,
                 'total_qty'      => $totalQty,
                 'status'         => 'pending',
-                'metode_bayar'   => $request->metode_bayar,
+                'metode_bayar'   => $validated['metode_bayar'],
                 'ticket_summary' => implode(', ', $summaryParts),
             ]);
 
+            $pemesanData = $validated['pemesan'] ?? [];
+
             foreach ($ticketItems as $item) {
+                $itemPassengerData = $pemesanData[$item['category']->id] ?? [];
+                
+                // Jika tiket pertama tidak punya data pemesan, gunakan data pemesan utama
+                if (!isset($itemPassengerData[1])) {
+                    $itemPassengerData[1] = [
+                        'name'  => $validated['nama'],
+                        'phone' => $validated['no_hp'],
+                    ];
+                }
+                
                 OrderItem::create([
                     'order_id'           => $order->id,
                     'ticket_category_id' => $item['category']->id,
                     'qty'                => $item['qty'],
                     'harga_satuan'       => $item['category']->harga,
+                    'passenger_data'     => $itemPassengerData,
                 ]);
             }
 
@@ -208,7 +274,7 @@ class CheckoutController extends Controller
         $orderId = session('last_order_id');
         if (! $orderId) return redirect()->route('dashboard');
 
-        $order = Order::with(['event', 'items.ticketCategory'])->findOrFail($orderId);
+        $order = Order::with(['user', 'event', 'items.ticketCategory'])->findOrFail($orderId);
 
         return view('checkout.sukses', compact('order'));
     }

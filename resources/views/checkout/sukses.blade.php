@@ -413,7 +413,13 @@
         window.location.href = '/login';
         return null;
       }
-      if (!r.ok) throw new Error('HTTP ' + r.status);
+      if (!r.ok) {
+        return r.json().catch(() => ({})).then(errData => {
+          const err = new Error(errData.error || 'HTTP ' + r.status);
+          err.status = r.status;
+          throw err;
+        });
+      }
       return r.json();
     })
     .then(data => {
@@ -428,6 +434,11 @@
     .catch(err => {
       console.error('Konfirmasi error:', err);
       _konfirmasiDone = false; // allow retry
+      if (err.status === 422) {
+        alert(err.message);
+        showStep('step-instruksi');
+        return;
+      }
       // Tetap tampilkan sukses (payment sudah diterima secara optimistis)
       // tapi tandai sebagai perlu verifikasi manual
       showStep('step-sukses');

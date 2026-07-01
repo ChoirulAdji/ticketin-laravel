@@ -345,6 +345,10 @@
           <p class="text-2xl font-extrabold text-navy-deep mb-5">
             Rp {{ number_format($event->harga_termurah, 0, ',', '.') }}
           </p>
+          <div class="flex items-center justify-between bg-navy-mid/5 border border-navy-mid/10 rounded-xl px-4 py-3 mb-5">
+            <span class="text-sm font-semibold text-gray-600">Sisa Tiket</span>
+            <span class="text-sm font-extrabold text-navy-mid">{{ number_format($event->ticketCategories->sum('kuota'), 0, ',', '.') }} tiket</span>
+          </div>
           @auth
             <a href="{{ route('events.pilih-tiket', $event) }}"
                class="flex items-center justify-center w-full bg-gold text-navy-deep font-bold text-base py-3.5 rounded-xl hover:bg-gold-light transition-all hover:shadow-lg hover:shadow-gold/30">
@@ -369,6 +373,7 @@
     <div>
       <p class="text-xs text-gray-500 mb-0.5">Harga Tiket</p>
       <p class="text-lg font-extrabold text-navy-deep">Rp {{ number_format($event->harga_termurah, 0, ',', '.') }}</p>
+      <p class="text-xs text-gray-400">Sisa {{ number_format($event->ticketCategories->sum('kuota'), 0, ',', '.') }} tiket</p>
     </div>
     @auth
       <a href="{{ route('events.pilih-tiket', $event) }}" class="flex-1 bg-gold text-navy-deep text-center font-bold py-3 rounded-xl hover:bg-gold-light transition-all text-sm shadow-md">

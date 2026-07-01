@@ -88,6 +88,12 @@
         Laporan Penjualan
       </a>
 
+      <a href="{{ route('pengelola.penarikan') }}"
+         class="sidebar-link {{ request()->routeIs('pengelola.penarikan*') || request()->routeIs('pengelola.rekening.*') ? 'active' : '' }}">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-2m2-6h2a2 2 0 012 2v2a2 2 0 01-2 2h-2m0-6v6m0-6H9m8 6H9"/></svg>
+        Tarik Pendapatan
+      </a>
+
       <p class="text-xs font-bold text-gray-400 uppercase tracking-wider px-3 mb-2 mt-4">Event Saya</p>
 
       @foreach(\App\Models\Event::where('pengelola_id', auth()->id())->latest()->take(5)->get() as $ev)

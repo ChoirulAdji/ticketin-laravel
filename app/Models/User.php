@@ -29,6 +29,7 @@ class User extends Authenticatable
     public function events()       { return $this->hasMany(Event::class, 'pengelola_id'); }
     public function orders()       { return $this->hasMany(Order::class); }
     public function eoApplication(){ return $this->hasOne(EoApplication::class); }
+    public function eoWithdrawals(){ return $this->hasMany(EoWithdrawal::class, 'pengelola_id'); }
 
     public function isPengelola(): bool { return in_array($this->role, ['pengelola', 'admin']); }
     public function isAdmin(): bool     { return $this->role === 'admin'; }
